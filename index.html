@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulario de Contacto</title>
+    <!-- Tailwind CSS (para estilos, opcional) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <form id="miFormulario" class="bg-white p-8 rounded-lg shadow-md w-96">
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Nombre:</label>
+            <input type="text" name="nombre" required 
+                   class="w-full px-3 py-2 border rounded-md">
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Email:</label>
+            <input type="email" name="email" required
+                   class="w-full px-3 py-2 border rounded-md">
+        </div>
+        
+        <div class="mb-4">
+            <label class="block text-gray-700 mb-2">Teléfono:</label>
+            <input type="tel" name="telefono"
+                   class="w-full px-3 py-2 border rounded-md">
+        </div>
+
+        <button type="submit" 
+                class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
+            Enviar Datos
+        </button>
+        
+        <div id="mensaje" class="mt-4 text-center"></div>
+    </form>
+
+    <script>
+   document.getElementById('miFormulario').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const mensaje = document.getElementById('mensaje');
+    mensaje.textContent = "Enviando...";
+
+    try {
+        const formData = new FormData(e.target);
+        const url = 'https://script.google.com/macros/s/AKfycbydlgRv5k5eeKHsqc4ZAD443PxD_UqRkXyMA2dkCj2FcsJTjkAaX7pf5-xMS_lmdorp/exec';
+
+        // Configuración especial para CORS
+        const response = await fetch(url, {
+            method: 'POST',
+            redirect: 'follow',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams(formData)
+        });
+
+        // Manejar redirecciones de Google Apps Script
+        const finalResponse = await response.text();
+        const result = JSON.parse(finalResponse);
+
+        if(result.success) {
+            mensaje.textContent = "✅ Datos guardados correctamente";
+            mensaje.style.color = 'green';
+            e.target.reset();
+        } else {
+            throw new Error(result.error || "Error desconocido");
+        }
+
+    } catch (error) {
+        mensaje.textContent = `❌ Error: ${error.message}`;
+        mensaje.style.color = 'red';
+        console.error('Detalles del error:', error);
+    }
+});
+    </script>
+</body>
+</html>
