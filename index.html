@@ -7,7 +7,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Toastify para alertas bonitas -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
     
@@ -20,8 +19,7 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- PANTALLA DE ACCESO (LOGIN/REGISTRO) -->
-    <div id="login-screen" class="fixed inset-0 z-50 bg-[#fff9f5] flex items-center justify-center p-4 transition-opacity duration-500">
+    <div id="login-screen" class="fixed inset-0 z-50 bg-[#fff9f5] flex items-center justify-center p-4 transition-opacity duration-500" style="display: none;">
         <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border-t-4 border-[#f8b5d1]">
             <div class="text-5xl mb-4">🔐</div>
             <h1 class="text-2xl font-bold text-[#5d4037] mb-2">Bienvenido</h1>
@@ -29,7 +27,6 @@
             
             <form id="access-form" class="space-y-4 text-left">
                 
-                <!-- Paso 1: Código Tienda y Teléfono -->
                 <div id="step-1">
                     <div class="mb-4">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Código de la Tienda (5 letras)</label>
@@ -46,7 +43,6 @@
                     </button>
                 </div>
 
-                <!-- Paso 2: Registro de Nombre (Solo si es nuevo) -->
                 <div id="step-2" class="hidden">
                     <div class="bg-blue-50 text-blue-800 p-3 rounded-lg text-sm mb-4">
                         👋 ¡Hola! Parece que es tu primera vez aquí. ¿Cómo te llamas?
@@ -65,9 +61,7 @@
         </div>
     </div>
 
-    <!-- CONTENIDO DEL CATÁLOGO -->
     <div id="catalog-app" class="hidden flex-col min-h-screen">
-        <!-- Navbar -->
         <header class="sticky top-0 z-40 bg-white/90 backdrop-blur shadow-sm border-b border-[#f8b5d1]">
             <div class="container mx-auto px-4 py-3 flex justify-between items-center">
                 <div class="flex items-center gap-2">
@@ -87,7 +81,6 @@
             </div>
         </header>
 
-        <!-- Hero Mini -->
         <div class="bg-[#5d4037] text-white py-8 px-4 text-center bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1555507036-ab794f27d2e9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
             <div class="absolute inset-0 bg-black/60"></div>
             <div class="relative z-10">
@@ -96,11 +89,9 @@
             </div>
         </div>
 
-        <!-- Grid Productos -->
         <main class="flex-grow container mx-auto px-4 py-8">
             <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Productos aquí -->
-            </div>
+                </div>
             <div id="empty-msg" class="hidden text-center py-10 text-gray-500">
                 No hay productos disponibles en esta tienda.
             </div>
@@ -139,10 +130,18 @@
             const savedStoreCode = localStorage.getItem('sofia_store_code');
             const savedPhone = localStorage.getItem('sofia_client_phone');
             
+            // ========================================================
+            // CAMBIO 2: Lógica de inicialización
+            // ========================================================
             if (savedStoreCode && savedPhone) {
+                // Hay sesión guardada. Intentamos iniciar sesión automáticamente.
+                // La pantalla de login permanece oculta (display: none).
                 document.getElementById('store-code').value = savedStoreCode;
                 document.getElementById('client-phone').value = savedPhone;
                 handleAccess(new Event('submit'));
+            } else {
+                // No hay sesión. Mostramos la pantalla de login.
+                loginScreen.style.display = 'flex';
             }
         });
 
@@ -171,7 +170,7 @@
                     .from('usuarios')
                     .select('*')
                     .eq('codigo_tienda', code)
-                    .maybeSingle(); // maybeSingle no lanza error si no encuentra, devuelve null
+                    .maybeSingle(); 
 
                 if (storeError) {
                     console.error("Error DB Tienda:", storeError);
@@ -206,6 +205,16 @@
                 console.error(err);
                 showError(err.message);
                 showLoading(false);
+
+                // ========================================================
+                // CAMBIO 3: Mostrar login si el auto-login falla
+                // ========================================================
+                // Si el inicio de sesión automático falló, mostramos el login
+                // para que el usuario pueda corregir los datos.
+                loginScreen.style.display = 'flex';
+                // Y limpiamos los datos erróneos
+                localStorage.removeItem('sofia_store_code');
+                localStorage.removeItem('sofia_client_phone');
             }
         }
 
@@ -216,6 +225,9 @@
             step1.classList.add('hidden');
             step2.classList.remove('hidden');
             showLoading(false);
+            
+            // Asegurarnos de que el login screen esté visible si llegamos a este paso
+            loginScreen.style.display = 'flex'; 
         }
 
         document.getElementById('btn-register').addEventListener('click', async () => {
@@ -267,6 +279,8 @@
             document.getElementById('client-phone-display').textContent = currentClient.telefono;
 
             // Transición de pantallas
+            // Esta lógica funciona bien tanto para el login manual (fade-out)
+            // como para el login automático (ya está 'display: none')
             loginScreen.classList.add('opacity-0', 'pointer-events-none');
             setTimeout(() => loginScreen.style.display = 'none', 500);
             catalogApp.classList.remove('hidden');
@@ -282,7 +296,7 @@
                 .from('productos')
                 .select('*')
                 .eq('creado_por', currentStore.id)
-               .order('fecha_creacion', { ascending: false });
+                .order('fecha_creacion', { ascending: false }); // Corregido
 
             productsGrid.innerHTML = '';
 
@@ -371,6 +385,3 @@
     </script>
 </body>
 </html>
-
-
-
