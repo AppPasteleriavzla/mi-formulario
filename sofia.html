@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sofía Manager - Catálogo Digital</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #f8b5d1;
+            --secondary: #a5d6a7;
+            --accent: #ffcc80;
+            --dark: #5d4037;
+            --light: #fff9f5;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            background-color: var(--primary);
+            border-radius: 10px 10px 0 0;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            line-height: 1.4;
+            position: relative;
+        }
+        
+        .bot-message {
+            align-self: flex-start;
+            background-color: #f0f0f0;
+            border-bottom-left-radius: 5px;
+            color: #333;
+        }
+        
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--primary);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .input-area {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #eee;
+            background-color: #f9f9f9;
+        }
+        
+        .input-area input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            font-size: 16px;
+        }
+        
+        .input-area button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: background-color 0.3s;
+        }
+        
+        .input-area button:hover {
+            background-color: #f0a0c5;
+        }
+        
+        .options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .option-btn {
+            background-color: var(--secondary);
+            color: var(--dark);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .option-btn:hover {
+            background-color: #95c997;
+            transform: translateY(-2px);
+        }
+        
+        .form-container {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        
+        .submit-btn {
+            background-color: var(--accent);
+            color: var(--dark);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .submit-btn:hover {
+            background-color: #ffc266;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--accent);
+        }
+        
+        .product-card h4 {
+            margin-bottom: 5px;
+            color: var(--dark);
+        }
+        
+        .product-card p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .online {
+            background-color: #4caf50;
+        }
+        
+        .offline {
+            background-color: #f44336;
+        }
+        
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .logout-btn {
+            background: none;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .logout-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .message {
+                max-width: 90%;
+            }
+            
+            .user-info {
+                position: static;
+                justify-content: flex-end;
+                margin-bottom: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Sofía Manager</h1>
+            <p>Tu asistente para gestionar el catálogo digital</p>
+        </div>
+        
+        <div class="user-info" id="userInfo" style="display: none;">
+            <div class="user-avatar" id="userAvatar">U</div>
+            <span id="userName">Usuario</span>
+            <button class="logout-btn" id="logoutBtn">Cerrar Sesión</button>
+        </div>
+        
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages">
+                <div class="message bot-message">
+                    <span class="status-indicator online"></span>
+                    <strong>Sofía:</strong> ¡Hola! Soy Sofía, tu asistente para gestionar el catálogo digital de tu pastelería. ¿Ya tienes una cuenta?
+                    <div class="options">
+                        <button class="option-btn" data-option="si">Sí, tengo cuenta</button>
+                        <button class="option-btn" data-option="no">No, necesito registrarme</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="input-area">
+                <input type="text" id="userInput" placeholder="Escribe tu mensaje aquí..." disabled>
+                <button id="sendBtn">➤</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuración de Supabase
+        const SUPABASE_URL = 'https://cirrapytmbnjlhxunkaq.supabase.co'
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpcnJhcHl0bWJuamxoeHVua2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NzAyMDAsImV4cCI6MjA3ODU0NjIwMH0.OtJiLGj1EvhPICFaA9ruL02Z9kSQ2jT0t3Smqph81C4'; // Reemplaza con tu clave anónima
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Elementos del DOM
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const userInfo = document.getElementById('userInfo');
+        const userAvatar = document.getElementById('userAvatar');
+        const userName = document.getElementById('userName');
+        const logoutBtn = document.getElementById('logoutBtn');
+        
+        // Estado de la conversación
+        let conversationState = 'initial';
+        let currentUser = null;
+        let productData = {};
+        
+        // Inicializar la aplicación
+        function init() {
+            checkAuthState();
+            setupEventListeners();
+        }
+        
+        // Verificar estado de autenticación
+        async function checkAuthState() {
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            if (user) {
+                // Usuario autenticado
+                const { data: usuario } = await supabase
+                    .from('usuarios')
+                    .select('*')
+                    .eq('id', user.id)
+                    .single();
+                
+                if (usuario) {
+                    currentUser = usuario;
+                    showUserInfo();
+                    addBotMessage(`¡Hola de nuevo, ${usuario.nombre}! ¿En qué puedo ayudarte hoy?`, [
+                        { text: 'Crear producto', option: 'crear_producto' },
+                        { text: 'Ver mis productos', option: 'ver_productos' },
+                        { text: 'Ver pedidos', option: 'ver_pedidos' }
+                    ]);
+                    conversationState = 'main_menu';
+                    userInput.disabled = false;
+                }
+            }
+        }
+        
+        // Configurar event listeners
+        function setupEventListeners() {
+            sendBtn.addEventListener('click', handleUserMessage);
+            userInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleUserMessage();
+                }
+            });
+            
+            logoutBtn.addEventListener('click', handleLogout);
+            
+            // Delegación de eventos para los botones de opciones
+            chatMessages.addEventListener('click', (e) => {
+                if (e.target.classList.contains('option-btn')) {
+                    const option = e.target.getAttribute('data-option');
+                    handleOptionSelection(option);
+                }
+            });
+        }
+        
+        // Manejar mensaje del usuario
+        function handleUserMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+            
+            addUserMessage(message);
+            userInput.value = '';
+            
+            // Procesar según el estado de la conversación
+            switch(conversationState) {
+                case 'initial':
+                    if (message.toLowerCase().includes('sí') || message.toLowerCase().includes('si')) {
+                        askForLogin();
+                    } else if (message.toLowerCase().includes('no')) {
+                        askForRegistration();
+                    }
+                    break;
+                    
+                case 'awaiting_login_email':
+                    loginUser(message);
+                    break;
+                    
+                case 'awaiting_login_password':
+                    completeLogin(message);
+                    break;
+                    
+                case 'awaiting_register_name':
+                    productData.nombre = message;
+                    askForRegisterEmail();
+                    break;
+                    
+                case 'awaiting_register_email':
+                    productData.email = message;
+                    askForRegisterPassword();
+                    break;
+                    
+                case 'awaiting_register_password':
+                    productData.password = message;
+                    completeRegistration();
+                    break;
+                    
+                case 'main_menu':
+                    processMainMenu(message);
+                    break;
+                    
+                case 'creating_product_name':
+                    productData.nombre = message;
+                    askForProductPrice();
+                    break;
+                    
+                case 'creating_product_price':
+                    productData.precio = parseFloat(message);
+                    askForProductDescription();
+                    break;
+                    
+                case 'creating_product_description':
+                    productData.descripcion = message;
+                    askForProductCategory();
+                    break;
+                    
+                case 'creating_product_category':
+                    productData.categoria = message;
+                    askForProductImage();
+                    break;
+                    
+                case 'creating_product_image':
+                    productData.imagen_url = message;
+                    askForProductStock();
+                    break;
+                    
+                case 'creating_product_stock':
+                    productData.stock = parseInt(message);
+                    saveProduct();
+                    break;
+            }
+        }
+        
+        // Manejar selección de opciones
+        function handleOptionSelection(option) {
+            switch(option) {
+                case 'si':
+                    askForLogin();
+                    break;
+                    
+                case 'no':
+                    askForRegistration();
+                    break;
+                    
+                case 'crear_producto':
+                    startProductCreation();
+                    break;
+                    
+                case 'ver_productos':
+                    showUserProducts();
+                    break;
+                    
+                case 'ver_pedidos':
+                    showUserOrders();
+                    break;
+            }
+        }
+        
+        // Añadir mensaje del bot
+        function addBotMessage(text, options = []) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot-message';
+            
+            let optionsHTML = '';
+            if (options.length > 0) {
+                optionsHTML = '<div class="options">';
+                options.forEach(opt => {
+                    optionsHTML += `<button class="option-btn" data-option="${opt.option}">${opt.text}</button>`;
+                });
+                optionsHTML += '</div>';
+            }
+            
+            messageDiv.innerHTML = `
+                <span class="status-indicator online"></span>
+                <strong>Sofía:</strong> ${text}
+                ${optionsHTML}
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Añadir mensaje del usuario
+        function addUserMessage(text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message user-message';
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        // Mostrar información del usuario
+        function showUserInfo() {
+            userInfo.style.display = 'flex';
+            userAvatar.textContent = currentUser.nombre.charAt(0).toUpperCase();
+            userName.textContent = currentUser.nombre;
+        }
+        
+        // Solicitar inicio de sesión
+        function askForLogin() {
+            addBotMessage('Por favor, ingresa tu correo electrónico:');
+            conversationState = 'awaiting_login_email';
+            userInput.disabled = false;
+        }
+        
+        // Iniciar sesión del usuario
+        async function loginUser(email) {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: 'dummy' // Se solicitará la contraseña en el siguiente paso
+            });
+            
+            if (error) {
+                // Esperamos que falle para solicitar la contraseña
+                addBotMessage('Ahora ingresa tu contraseña:');
+                productData.email = email; // Guardamos el email para el siguiente paso
+                conversationState = 'awaiting_login_password';
+            }
+        }
+        
+        // Completar inicio de sesión
+        async function completeLogin(password) {
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: productData.email,
+                password: password
+            });
+            
+            if (error) {
+                addBotMessage('Credenciales incorrectas. ¿Quieres intentar de nuevo?', [
+                    { text: 'Sí', option: 'si' },
+                    { text: 'No, registrarme', option: 'no' }
+                ]);
+                conversationState = 'initial';
+            } else {
+                // Obtener información del usuario
+                const { data: usuario } = await supabase
+                    .from('usuarios')
+                    .select('*')
+                    .eq('id', data.user.id)
+                    .single();
+                
+                currentUser = usuario;
+                showUserInfo();
+                addBotMessage(`¡Bienvenido de nuevo, ${usuario.nombre}! ¿En qué puedo ayudarte hoy?`, [
+                    { text: 'Crear producto', option: 'crear_producto' },
+                    { text: 'Ver mis productos', option: 'ver_productos' },
+                    { text: 'Ver pedidos', option: 'ver_pedidos' }
+                ]);
+                conversationState = 'main_menu';
+                
+                // Guardar mensaje en la base de datos
+                await supabase
+                    .from('mensajes_bot')
+                    .insert({
+                        usuario_id: usuario.id,
+                        mensaje: 'Inicio de sesión',
+                        respuesta: 'Bienvenido de nuevo'
+                    });
+            }
+        }
+        
+        // Solicitar registro
+        function askForRegistration() {
+            addBotMessage('¡Genial! Vamos a crear tu cuenta. Por favor, ingresa tu nombre:');
+            conversationState = 'awaiting_register_name';
+            userInput.disabled = false;
+        }
+        
+        // Solicitar email para registro
+        function askForRegisterEmail() {
+            addBotMessage(`Mucho gusto, ${productData.nombre}. Ahora ingresa tu correo electrónico:`);
+            conversationState = 'awaiting_register_email';
+        }
+        
+        // Solicitar contraseña para registro
+        function askForRegisterPassword() {
+            addBotMessage('Perfecto. Ahora crea una contraseña segura:');
+            conversationState = 'awaiting_register_password';
+        }
+        
+                // Completar registro
+        async function completeRegistration() {
+            // Registrar usuario en Auth de Supabase
+            const { data, error } = await supabase.auth.signUp({
+                email: productData.email,
+                password: productData.password,
+                options: {
+                    data: {
+                        name: productData.nombre
+                    }
+                }
+            });
+            
+            if (error) {
+                addBotMessage('Hubo un problema al crear tu cuenta. Por favor, intenta de nuevo.');
+                console.error("Error en Auth SignUp:", error); // <-- Error de autenticación
+                conversationState = 'initial';
+            } else {
+                // Crear registro en la tabla usuarios
+                const { data: usuario, error: userError } = await supabase
+                    .from('usuarios')
+                    .insert({
+                        id: data.user.id,
+                        nombre: productData.nombre,
+                        email: productData.email,
+                        rol: 'dueño' // Asumimos que quien se registra es el dueño
+                    })
+                    .select()
+                    .single();
+                
+                if (userError) {
+                    // ESTE ES EL ERROR QUE ESTÁS VIENDO
+                    addBotMessage('Hubo un problema al guardar tu información. Por favor, intenta de nuevo.');
+                    console.error("Error al insertar en 'usuarios':", userError); // <-- ¡AÑADIDO!
+                    conversationState = 'initial';
+                } else {
+                    currentUser = usuario;
+                    showUserInfo();
+                    addBotMessage(`¡Cuenta creada exitosamente, ${usuario.nombre}! Ahora puedes gestionar tu catálogo. ¿Qué te gustaría hacer?`, [
+                        { text: 'Crear producto', option: 'crear_producto' },
+                        { text: 'Ver mis productos', option: 'ver_productos' },
+                        { text: 'Ver pedidos', option: 'ver_pedidos' }
+                    ]);
+                    conversationState = 'main_menu';
+                    
+                    // Guardar mensaje en la base de datos
+                    await supabase
+                        .from('mensajes_bot')
+                        .insert({
+                            usuario_id: usuario.id,
+                            mensaje: 'Registro de cuenta',
+                            respuesta: 'Cuenta creada exitosamente'
+                        });
+                }
+            }
+        }
+
+        
+        // Procesar menú principal
+        function processMainMenu(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            if (lowerMessage.includes('crear') || lowerMessage.includes('producto')) {
+                startProductCreation();
+            } else if (lowerMessage.includes('ver') || lowerMessage.includes('productos')) {
+                showUserProducts();
+            } else if (lowerMessage.includes('pedidos')) {
+                showUserOrders();
+            } else {
+                addBotMessage('No entendí tu solicitud. Por favor, selecciona una opción:', [
+                    { text: 'Crear producto', option: 'crear_producto' },
+                    { text: 'Ver mis productos', option: 'ver_productos' },
+                    { text: 'Ver pedidos', option: 'ver_pedidos' }
+                ]);
+            }
+        }
+        
+        // Iniciar creación de producto
+        function startProductCreation() {
+            productData = {};
+            addBotMessage('¡Excelente! Vamos a crear un nuevo producto. Por favor, ingresa el nombre del producto:');
+            conversationState = 'creating_product_name';
+        }
+        
+        // Solicitar precio del producto
+        function askForProductPrice() {
+            addBotMessage('Ahora ingresa el precio del producto:');
+            conversationState = 'creating_product_price';
+        }
+        
+        // Solicitar descripción del producto
+        function askForProductDescription() {
+            addBotMessage('Ingresa una descripción para el producto (opcional):');
+            conversationState = 'creating_product_description';
+        }
+        
+        // Solicitar categoría del producto
+        function askForProductCategory() {
+            addBotMessage('¿A qué categoría pertenece este producto? (opcional)');
+            conversationState = 'creating_product_category';
+        }
+        
+        // Solicitar imagen del producto
+        function askForProductImage() {
+            addBotMessage('Ingresa la URL de una imagen para el producto (opcional):');
+            conversationState = 'creating_product_image';
+        }
+        
+        // Solicitar stock del producto
+        function askForProductStock() {
+            addBotMessage('Por último, ingresa la cantidad en stock (opcional, presiona Enter para omitir):');
+            conversationState = 'creating_product_stock';
+        }
+        
+        // Guardar producto en la base de datos
+        async function saveProduct() {
+            const { data, error } = await supabase
+                .from('productos')
+                .insert({
+                    nombre: productData.nombre,
+                    precio: productData.precio,
+                    descripcion: productData.descripcion || null,
+                    categoria: productData.categoria || null,
+                    imagen_url: productData.imagen_url || null,
+                    stock: productData.stock || 0,
+                    creado_por: currentUser.id,
+                    destacado: false
+                })
+                .select()
+                .single();
+            
+            if (error) {
+                addBotMessage('Hubo un problema al guardar el producto. Por favor, intenta de nuevo.');
+            } else {
+                addBotMessage(`¡Producto "${productData.nombre}" creado exitosamente! ¿Qué te gustaría hacer ahora?`, [
+                    { text: 'Crear otro producto', option: 'crear_producto' },
+                    { text: 'Ver mis productos', option: 'ver_productos' },
+                    { text: 'Ver pedidos', option: 'ver_pedidos' }
+                ]);
+                
+                // Guardar mensaje en la base de datos
+                await supabase
+                    .from('mensajes_bot')
+                    .insert({
+                        usuario_id: currentUser.id,
+                        mensaje: `Crear producto: ${productData.nombre}`,
+                        respuesta: 'Producto creado exitosamente'
+                    });
+            }
+            
+            conversationState = 'main_menu';
+        }
+        
+        // Mostrar productos del usuario
+        async function showUserProducts() {
+            const { data: productos, error } = await supabase
+                .from('productos')
+                .select('*')
+                .eq('creado_por', currentUser.id)
+                .order('fecha_creacion', { ascending: false });
+            
+            if (error) {
+                addBotMessage('Hubo un problema al cargar tus productos.');
+            } else if (productos.length === 0) {
+                addBotMessage('Aún no has creado ningún producto. ¿Te gustaría crear uno?', [
+                    { text: 'Sí, crear producto', option: 'crear_producto' }
+                ]);
+            } else {
+                addBotMessage(`Estos son tus productos (${productos.length} en total):`);
+                
+                productos.forEach(producto => {
+                    const productDiv = document.createElement('div');
+                    productDiv.className = 'product-card';
+                    productDiv.innerHTML = `
+                        <h4>${producto.nombre}</h4>
+                        <p><strong>Precio:</strong> $${producto.precio}</p>
+                        <p><strong>Stock:</strong> ${producto.stock}</p>
+                        ${producto.descripcion ? `<p><strong>Descripción:</strong> ${producto.descripcion}</p>` : ''}
+                        ${producto.categoria ? `<p><strong>Categoría:</strong> ${producto.categoria}</p>` : ''}
+                    `;
+                    chatMessages.appendChild(productDiv);
+                });
+                
+                addBotMessage('¿Qué te gustaría hacer ahora?', [
+                    { text: 'Crear producto', option: 'crear_producto' },
+                    { text: 'Ver pedidos', option: 'ver_pedidos' }
+                ]);
+            }
+            
+            conversationState = 'main_menu';
+        }
+        
+        // Mostrar pedidos del usuario
+        async function showUserOrders() {
+            const { data: pedidos, error } = await supabase
+                .from('pedidos')
+                .select('*')
+                .eq('cliente_id', currentUser.id)
+                .order('fecha', { ascending: false });
+            
+            if (error) {
+                addBotMessage('Hubo un problema al cargar tus pedidos.');
+            } else if (pedidos.length === 0) {
+                addBotMessage('Aún no tienes pedidos registrados.');
+            } else {
+                addBotMessage(`Estos son tus pedidos (${pedidos.length} en total):`);
+                
+                pedidos.forEach(pedido => {
+                    const orderDiv = document.createElement('div');
+                    orderDiv.className = 'product-card';
+                    
+                    let productosHTML = '';
+                    if (pedido.productos && Array.isArray(pedido.productos)) {
+                        productosHTML = '<ul>';
+                        pedido.productos.forEach(prod => {
+                            productosHTML += `<li>${prod.nombre} - $${prod.precio}</li>`;
+                        });
+                        productosHTML += '</ul>';
+                    }
+                    
+                    orderDiv.innerHTML = `
+                        <h4>Pedido #${pedido.id}</h4>
+                        <p><strong>Total:</strong> $${pedido.total}</p>
+                        <p><strong>Estado:</strong> ${pedido.estado}</p>
+                        <p><strong>Fecha:</strong> ${new Date(pedido.fecha).toLocaleDateString()}</p>
+                        ${productosHTML}
+                    `;
+                    chatMessages.appendChild(orderDiv);
+                });
+            }
+            
+            addBotMessage('¿Qué te gustaría hacer ahora?', [
+                { text: 'Crear producto', option: 'crear_producto' },
+                { text: 'Ver mis productos', option: 'ver_productos' }
+            ]);
+            
+            conversationState = 'main_menu';
+        }
+        
+        // Manejar cierre de sesión
+        async function handleLogout() {
+            await supabase.auth.signOut();
+            currentUser = null;
+            userInfo.style.display = 'none';
+            
+            addBotMessage('Has cerrado sesión. ¿Quieres iniciar sesión de nuevo?', [
+                { text: 'Sí, tengo cuenta', option: 'si' },
+                { text: 'No, registrarme', option: 'no' }
+            ]);
+            
+            conversationState = 'initial';
+        }
+        
+        // Inicializar la aplicación cuando se carga la página
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
