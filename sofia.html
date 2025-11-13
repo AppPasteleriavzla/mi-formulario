@@ -15,9 +15,9 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: #f3f4f6; }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* Estilos para el modal */
-        #product-modal { display: none; }
-        #product-modal.flex { display: flex; }
+        /* Estilos para modales */
+        .modal { display: none; }
+        .modal.flex { display: flex; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -55,7 +55,12 @@
                         <p id="admin-email-display" class="text-xs text-gray-400">Cargando...</p>
                     </div>
                 </div>
-                <button onclick="logoutAdmin()" class="text-xs text-red-400 border border-red-200 px-2 py-1 rounded hover:bg-red-50">Salir</button>
+                <div class="flex items-center gap-2">
+                    <button onclick="openPaymentModal()" class="text-xs text-[#5d4037] bg-yellow-100 border border-yellow-200 px-2 py-1 rounded hover:bg-yellow-200">
+                        Métodos de Pago
+                    </button>
+                    <button onclick="logoutAdmin()" class="text-xs text-red-400 border border-red-200 px-2 py-1 rounded hover:bg-red-50">Salir</button>
+                </div>
             </div>
         </header>
 
@@ -73,42 +78,76 @@
         </main>
     </div>
 
-    <div id="product-modal" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm items-center justify-center p-4 hidden">
+    <div id="product-modal" class="modal fixed inset-0 z-50 bg-black/50 backdrop-blur-sm items-center justify-center p-4 hidden">
         <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
             <div class="p-4 border-b flex justify-between items-center">
                 <h3 class="text-lg font-bold text-[#5d4037]">Editar Imagen del Producto</h3>
-                <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-gray-700 font-bold text-xl">&times;</button>
+                <button type="button" onclick="closeModal('product-modal')" class="text-gray-400 hover:text-gray-700 font-bold text-xl">&times;</button>
             </div>
             
             <form id="image-upload-form" class="p-6 space-y-4">
-                <input type="hidden" id="product-id-field">
-                
-                <p class="font-bold text-lg text-[#5d4037]" id="modal-product-name">Cargando nombre...</p>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Imagen Actual</label>
-                    <img id="current-image-preview" src="https://placehold.co/400x300/eee/ccc?text=Sin+Imagen" class="w-full h-48 object-cover rounded-md bg-gray-100">
-                </div>
+                </form>
+        </div>
+    </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Subir o Cambiar Imagen (Máx 5MB)</label>
-                    <input type="file" id="product-image-input" accept="image/png, image/jpeg, image/webp"
-                           class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
-                                  file:rounded-full file:border-0 file:text-sm file:font-semibold
-                                  file:bg-[#f8b5d1] file:text-[#5d4037] hover:file:bg-opacity-80
-                                  file:cursor-pointer"/>
-                </div>
-
-                <p id="upload-status" class="text-sm text-gray-500 text-center"></p>
-
-                <div class="flex justify-end gap-3 pt-4">
-                    <button type="button" onclick="closeModal()" class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg text-sm font-bold">Cancelar</button>
-                    <button type="submit" id="btn-save-image" class="bg-[#5d4037] text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2">
-                        <span>Guardar Cambios</span>
-                        <span id="btn-loader-upload" class="loader hidden"></span>
+    <div id="payment-modal" class="modal fixed inset-0 z-50 bg-black/50 backdrop-blur-sm items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+            <div class="p-4 border-b flex justify-between items-center">
+                <h3 class="text-lg font-bold text-[#5d4037]">Configurar Métodos de Pago</h3>
+                <button type="button" onclick="closeModal('payment-modal')" class="text-gray-400 hover:text-gray-700 font-bold text-xl">&times;</button>
+            </div>
+            
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[70vh] overflow-y-auto">
+                <form id="bank-details-form" class="space-y-4">
+                    <h4 class="font-bold text-lg text-[#5d4037]">Datos Bancarios (Transferencia / Pago Móvil)</h4>
+                    
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre del Banco</label>
+                        <input type="text" id="bank-name" class="w-full p-2 border border-gray-200 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Nombre del Titular</label>
+                        <input type="text" id="account-holder-name" class="w-full p-2 border border-gray-200 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Número de Cuenta</label>
+                        <input type="text" id="account-number" class="w-full p-2 border border-gray-200 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Cédula / RIF del Titular</label>
+                        <input type="text" id="account-holder-id" class="w-full p-2 border border-gray-200 rounded-lg">
+                    </div>
+                    <button type="submit" id="btn-save-bank" class="w-full bg-[#5d4037] text-white py-2 rounded-lg font-bold flex items-center justify-center gap-2">
+                        <span>Guardar Datos Bancarios</span>
+                        <span id="btn-loader-bank" class="loader hidden"></span>
                     </button>
-                </div>
-            </form>
+                </form>
+
+                <form id="qr-upload-form" class="space-y-4">
+                    <h4 class="font-bold text-lg text-[#5d4037]">Imagen de Pago (QR)</h4>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Imagen QR Actual</label>
+                        <img id="current-qr-preview" src="https://placehold.co/400x300/eee/ccc?text=Sin+QR" class="w-full h-48 object-contain rounded-md bg-gray-100">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Subir o Cambiar QR (Máx 5MB)</label>
+                        <input type="file" id="qr-image-input" accept="image/png, image/jpeg, image/webp"
+                               class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4
+                                      file:rounded-full file:border-0 file:text-sm file:font-semibold
+                                      file:bg-[#f8b5d1] file:text-[#5d4037] hover:file:bg-opacity-80
+                                      file:cursor-pointer"/>
+                    </div>
+
+                    <p id="qr-upload-status" class="text-sm text-gray-500 text-center"></p>
+
+                    <button type="submit" id="btn-save-qr" class="w-full bg-[#f8b5d1] text-[#5d4037] py-2 rounded-lg font-bold flex items-center justify-center gap-2">
+                        <span>Guardar Imagen QR</span>
+                        <span id="btn-loader-qr" class="loader hidden"></span>
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -118,16 +157,15 @@
         // 1. CONFIGURACIÓN DE SUPABASE
         // =================================================
         const SUPABASE_URL = 'https://cirrapytmbnjlhxunkaq.supabase.co';
-        // NOTA: Para el Admin Manager, necesitamos la clave 'anon' para la DB, 
-        // pero las funciones de Storage (subir) solo funcionarán si el usuario está AUTENTICADO.
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpcnJhcHl0bWJuamxoeHVua2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NzAyMDAsImV4cCI6MjA3ODU0NjIwMH0.OtJiLGj1EvhPICFaA9ruL02Z9kSQ2jT0t3Smqph81C4'; // REEMPLAZA CON TU CLAVE ANÓNIMA REAL
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpcnJhcHl0bWJuamxoeHVua2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NzAyMDAsImV4cCI6MjA3ODU0NjIwMH0.OtJiLGj1EvhPICFaA9ruL02Z9kSQ2jT0t3Smqph81C4';
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const BUCKET_NAME = 'imagenes-productos'; // El nombre del bucket que creaste en el paso 1
+        const BUCKET_NAME = 'imagenes-productos'; 
 
         let currentAdmin = null;
+        let paymentMethodRecord = null; // Almacenará el registro de pago
 
-        // Elementos DOM
+        // Elementos DOM (Productos)
         const loginScreen = document.getElementById('login-screen');
         const adminPanel = document.getElementById('admin-panel');
         const loginForm = document.getElementById('login-form');
@@ -142,9 +180,19 @@
         const loaderLogin = document.getElementById('btn-loader-login');
         const loaderUpload = document.getElementById('btn-loader-upload');
 
+        // NUEVO: Elementos DOM (Pagos)
+        const paymentModal = document.getElementById('payment-modal');
+        const bankDetailsForm = document.getElementById('bank-details-form');
+        const qrUploadForm = document.getElementById('qr-upload-form');
+        const currentQrPreview = document.getElementById('current-qr-preview');
+        const qrImageInput = document.getElementById('qr-image-input');
+        const qrUploadStatus = document.getElementById('qr-upload-status');
+        const loaderBank = document.getElementById('btn-loader-bank');
+        const loaderQr = document.getElementById('btn-loader-qr');
+
 
         // =================================================
-        // 2. LÓGICA DE AUTENTICACIÓN
+        // 2. LÓGICA DE AUTENTICACIÓN (Sin cambios)
         // =================================================
         document.addEventListener('DOMContentLoaded', checkAdminSession);
         loginForm.addEventListener('submit', handleLogin);
@@ -152,7 +200,6 @@
         async function checkAdminSession() {
             const { data: { user } } = await supabase.auth.getUser();
             if (user) {
-                // Si hay sesión activa, obtenemos los datos del usuario de la tabla 'usuarios'
                 const { data: adminData } = await supabase
                     .from('usuarios')
                     .select('*')
@@ -163,7 +210,6 @@
                     currentAdmin = adminData;
                     enterAdminPanel();
                 } else {
-                    // Si el usuario existe en Auth pero no en la tabla 'usuarios' (error de registro)
                     await supabase.auth.signOut();
                     loginScreen.style.display = 'flex';
                 }
@@ -189,7 +235,6 @@
                 return;
             }
 
-            // Una vez logueado en Auth, obtenemos los datos de la tabla 'usuarios'
             const { data: adminData, error: dbError } = await supabase
                 .from('usuarios')
                 .select('*')
@@ -200,7 +245,7 @@
                 document.getElementById('login-error-msg').textContent = 'Error al obtener datos del manager.';
                 document.getElementById('login-error-msg').classList.remove('hidden');
                 loaderLogin.classList.add('hidden');
-                await supabase.auth.signOut(); // Forzar cierre de sesión si hay error en DB
+                await supabase.auth.signOut(); 
                 return;
             }
 
@@ -225,7 +270,7 @@
         }
 
         // =================================================
-        // 3. LÓGICA DE CARGA DE PRODUCTOS
+        // 3. LÓGICA DE CARGA DE PRODUCTOS (Sin cambios)
         // =================================================
         async function loadProducts() {
             adminProductsGrid.innerHTML = '<div class="col-span-full text-center"><span class="loader"></span> Cargando productos...</div>';
@@ -273,7 +318,7 @@
                     
                     <div class="flex justify-between items-center pt-2 border-t mt-auto">
                         <button class="bg-[#f8b5d1] text-[#5d4037] px-3 py-1 rounded-lg text-sm font-bold hover:bg-opacity-80 transition"
-                            onclick="openModal('${product.id}', '${product.nombre}', '${image}')">
+                            onclick="openModal('product-modal', '${product.id}', '${product.nombre}', '${image}')">
                             Subir/Cambiar Imagen
                         </button>
                         <button class="text-sm text-gray-500 hover:text-red-500 transition">Editar</button>
@@ -284,28 +329,30 @@
         }
 
         // =================================================
-        // 4. LÓGICA DE MODAL Y SUBIDA DE IMAGEN (El requerimiento clave)
+        // 4. LÓGICA DE MODAL Y SUBIDA DE IMAGEN DE PRODUCTO
         // =================================================
-        window.openModal = function(productId, productName, currentImageUrl) {
-            productIdField.value = productId;
-            productNameModal.textContent = productName;
-            currentImagePreview.src = currentImageUrl;
-            uploadStatus.textContent = '';
-            productImageInput.value = ''; // Limpiar el input file
-            productModal.classList.add('flex');
-            productModal.classList.remove('hidden');
+        window.openModal = function(modalId, productId, productName, currentImageUrl) {
+            if (modalId === 'product-modal') {
+                productIdField.value = productId;
+                productNameModal.textContent = productName;
+                currentImagePreview.src = currentImageUrl;
+                uploadStatus.textContent = '';
+                productImageInput.value = ''; 
+                productModal.classList.add('flex');
+                productModal.classList.remove('hidden');
+            }
         }
 
-        window.closeModal = function() {
-            productModal.classList.add('hidden');
-            productModal.classList.remove('flex');
+        window.closeModal = function(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('flex');
         }
 
         imageUploadForm.addEventListener('submit', handleImageUpload);
 
         async function handleImageUpload(e) {
             e.preventDefault();
-            
+            // ... (Misma lógica de subida de imagen de producto que antes) ...
             const productId = productIdField.value;
             const file = productImageInput.files[0];
             
@@ -315,30 +362,20 @@
             }
 
             loaderUpload.classList.remove('hidden');
-            uploadStatus.textContent = 'Subiendo imagen... Por favor, espera.';
+            uploadStatus.textContent = 'Subiendo imagen...';
 
-            // 1. Creamos un nombre de archivo único
-            // Usamos el ID del producto + un timestamp para evitar colisiones
             const fileExt = file.name.split('.').pop();
             const fileName = `${productId}-${Date.now()}.${fileExt}`;
-            const filePath = `products/${fileName}`; // Carpeta 'products' dentro de tu bucket
+            const filePath = `products/${fileName}`; // Carpeta 'products'
 
             try {
-                // 2. Subir la imagen al Bucket
-                // NOTA: Esta llamada requiere que Arnel esté autenticado, gracias a la política de seguridad.
                 const { data: uploadData, error: uploadError } = await supabase
                     .storage
                     .from(BUCKET_NAME) 
-                    .upload(filePath, file, {
-                        cacheControl: '3600',
-                        upsert: false // No sobrescribir, ya que generamos un nombre único
-                    });
+                    .upload(filePath, file, { upsert: false });
 
-                if (uploadError) {
-                    throw new Error(`Error al subir: Asegúrate de tener permisos (usuario logueado) y el bucket "${BUCKET_NAME}" creado.`);
-                }
+                if (uploadError) throw uploadError;
 
-                // 3. Obtener la URL pública de la imagen
                 const { data: urlData } = supabase
                     .storage
                     .from(BUCKET_NAME)
@@ -346,24 +383,17 @@
                 
                 const publicURL = urlData.publicUrl;
 
-                // 4. GUARDAR LA URL EN LA BASE DE DATOS (Tabla 'productos')
                 const { error: dbError } = await supabase
                     .from('productos')
                     .update({ imagen_url: publicURL })
                     .eq('id', productId);
 
-                if (dbError) {
-                    throw new Error(`Error al guardar URL en DB: ${dbError.message}`);
-                }
+                if (dbError) throw dbError;
 
-                uploadStatus.textContent = '¡Imagen actualizada con éxito! Recargando productos...';
+                uploadStatus.textContent = '¡Imagen actualizada con éxito! Recargando...';
                 
-                // Actualizar la vista
-                currentImagePreview.src = publicURL;
-                
-                // Cierra el modal y recarga la lista para que se vea el cambio
                 setTimeout(() => {
-                    closeModal();
+                    closeModal('product-modal');
                     loadProducts();
                 }, 1500);
 
@@ -373,6 +403,206 @@
             } finally {
                 loaderUpload.classList.add('hidden');
             }
+        }
+
+        // =================================================
+        // 5. NUEVA LÓGICA: MÉTODOS DE PAGO
+        // =================================================
+        
+        // Abre el modal de pagos y carga los datos existentes
+        window.openPaymentModal = async function() {
+            paymentModal.classList.add('flex');
+            paymentModal.classList.remove('hidden');
+            
+            // Cargar datos existentes
+            const { data, error } = await supabase
+                .from('payment_methods')
+                .select('*')
+                .eq('store_id', currentAdmin.id)
+                .maybeSingle(); // Obtiene uno o ninguno
+
+            if (error) {
+                console.error("Error cargando métodos de pago:", error);
+                return;
+            }
+
+            if (data) {
+                paymentMethodRecord = data; // Almacena el registro completo
+                document.getElementById('bank-name').value = data.bank_name || '';
+                document.getElementById('account-holder-name').value = data.account_holder_name || '';
+                document.getElementById('account-number').value = data.account_number || '';
+                document.getElementById('account-holder-id').value = data.account_holder_id || '';
+                currentQrPreview.src = data.qr_image_url || 'https://placehold.co/400x300/eee/ccc?text=Sin+QR';
+            } else {
+                paymentMethodRecord = null; // No existe registro
+            }
+        }
+
+        // Manejador para guardar datos bancarios
+        bankDetailsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loaderBank.classList.remove('hidden');
+
+            const bankData = {
+                store_id: currentAdmin.id,
+                bank_name: document.getElementById('bank-name').value,
+                account_holder_name: document.getElementById('account-holder-name').value,
+                account_number: document.getElementById('account-number').value,
+                account_holder_id: document.getElementById('account-holder-id').value,
+            };
+
+            try {
+                // Intenta actualizar si ya existe, o insertar si es nuevo
+                const { data, error } = await supabase
+                    .from('payment_methods')
+                    .upsert(bankData, { onConflict: 'store_id' }) // 'store_id' debe ser UNIQUE para que esto funcione
+                    .select()
+                    .single();
+
+                /* NOTA: Para que `upsert` con `onConflict` funcione, `store_id` debe tener una restricción 'UNIQUE'.
+                Si no la tienes, usa la lógica de "si existe, actualiza, si no, inserta".
+                */
+
+                // Lógica alternativa más segura (sin 'onConflict'):
+                /*
+                let error;
+                if (paymentMethodRecord) {
+                    // Actualizar
+                    const { error: updateError } = await supabase
+                        .from('payment_methods')
+                        .update(bankData)
+                        .eq('id', paymentMethodRecord.id);
+                    error = updateError;
+                } else {
+                    // Insertar
+                    const { data: insertData, error: insertError } = await supabase
+                        .from('payment_methods')
+                        .insert(bankData)
+                        .select()
+                        .single();
+                    if (insertData) paymentMethodRecord = insertData;
+                    error = insertError;
+                }
+                */
+
+                if (error) throw error;
+                
+                paymentMethodRecord = data; // Actualiza el registro local
+                showToast('Datos bancarios guardados con éxito.', 'success');
+
+            } catch (error) {
+                console.error(error);
+                showToast(`Error al guardar: ${error.message}`, 'error');
+            } finally {
+                loaderBank.classList.add('hidden');
+            }
+        });
+
+        // Manejador para subir imagen QR
+        qrUploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const file = qrImageInput.files[0];
+            if (!file) {
+                qrUploadStatus.textContent = 'Por favor, selecciona un archivo QR.';
+                return;
+            }
+
+            loaderQr.classList.remove('hidden');
+            qrUploadStatus.textContent = 'Subiendo QR...';
+
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${currentAdmin.id}-${Date.now()}.${fileExt}`;
+            const filePath = `payment/${fileName}`; // Carpeta 'payment'
+
+            try {
+                // 1. Subir al Storage
+                const { data: uploadData, error: uploadError } = await supabase
+                    .storage
+                    .from(BUCKET_NAME)
+                    .upload(filePath, file, { upsert: true }); // Usar upsert por si se resube
+
+                if (uploadError) throw uploadError;
+
+                // 2. Obtener URL pública
+                const { data: urlData } = supabase
+                    .storage
+                    .from(BUCKET_NAME)
+                    .getPublicUrl(uploadData.path);
+                
+                const publicURL = urlData.publicUrl;
+
+                // 3. Guardar URL en la tabla 'payment_methods'
+                const qrData = {
+                    store_id: currentAdmin.id,
+                    qr_image_url: publicURL
+                };
+                
+                const { data, error } = await supabase
+                    .from('payment_methods')
+                    .upsert(qrData, { onConflict: 'store_id' }) // Asumiendo store_id es UNIQUE
+                    .select()
+                    .single();
+
+                /*
+                // Lógica alternativa (más segura si store_id no es UNIQUE)
+                let error;
+                if (paymentMethodRecord) {
+                    const { error: updateError } = await supabase
+                        .from('payment_methods')
+                        .update({ qr_image_url: publicURL })
+                        .eq('id', paymentMethodRecord.id);
+                    error = updateError;
+                } else {
+                    const { data: insertData, error: insertError } = await supabase
+                        .from('payment_methods')
+                        .insert(qrData)
+                        .select()
+                        .single();
+                    if (insertData) paymentMethodRecord = insertData;
+                    error = insertError;
+                }
+                */
+
+                if (error) throw error;
+                
+                paymentMethodRecord = data; // Actualiza el registro local
+                currentQrPreview.src = publicURL;
+                qrUploadStatus.textContent = '';
+                showToast('Imagen QR guardada con éxito.', 'success');
+
+            } catch (error) {
+                console.error(error);
+                qrUploadStatus.textContent = `Error: ${error.message}`;
+                showToast(`Error al subir QR: ${error.message}`, 'error');
+            } finally {
+                loaderQr.classList.add('hidden');
+            }
+        });
+
+        // =================================================
+        // 6. UTILIDADES
+        // =================================================
+        function showToast(message, type = 'normal') {
+            let backgroundColor;
+            switch (type) {
+                case 'success':
+                    backgroundColor = "#a5d6a7"; // Verde
+                    break;
+                case 'error':
+                    backgroundColor = "#ef9a9a"; // Rojo
+                    break;
+                default:
+                    backgroundColor = "#5d4037"; // Oscuro
+            }
+            Toastify({
+                text: message,
+                duration: 3000,
+                gravity: "bottom",
+                position: "right",
+                backgroundColor: backgroundColor,
+                textColor: type === 'normal' ? '#FFFFFF' : '#000000'
+            }).showToast();
         }
 
     </script>
