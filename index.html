@@ -15,10 +15,8 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: #fff9f5; }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        /* Estilos para modales */
         .modal { display: none; }
         .modal.flex { display: flex; }
-        /* Badge del carrito */
         #cart-badge {
             position: absolute;
             top: -8px;
@@ -38,8 +36,46 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <div id="login-screen" class="fixed inset-0 z-50 bg-[#fff9f5] flex items-center justify-center p-4 transition-opacity duration-500" style="display: none;">
+    <div id="login-screen" class="fixed inset-0 z-50 bg-[#fff9f5] flex items-center justify-center p-4 transition-opacity duration-500">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border-t-4 border-[#f8b5d1]">
+            <div class="text-5xl mb-4">🍰</div>
+            <h1 class="text-2xl font-bold text-[#5d4037] mb-2">Bienvenido al Catálogo</h1>
+            <p class="text-gray-500 mb-6 text-sm">Ingresa el código de la tienda y tu teléfono para continuar.</p>
+            
+            <form id="access-form" class="space-y-4 text-left">
+                <!-- PASO 1 -->
+                <div id="step-1">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Código de Tienda</label>
+                        <input type="text" id="store-code" class="w-full p-3 border border-gray-200 rounded-lg" placeholder="Ej: ARNEL123" required>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tu Teléfono</label>
+                        <input type="tel" id="client-phone" class="w-full p-3 border border-gray-200 rounded-lg" placeholder="Ej: 04121234567" required>
+                    </div>
+                    <button type="submit" class="w-full bg-[#5d4037] text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition flex justify-center items-center gap-2">
+                        <span>Acceder al Catálogo</span>
+                        <span id="btn-loader-1" class="loader hidden"></span>
+                    </button>
+                </div>
+                
+                <!-- PASO 2 (Registro) -->
+                <div id="step-2" class="hidden">
+                    <p class="text-sm text-gray-600 mb-4">Primera vez aquí. Por favor, completa tu nombre.</p>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tu Nombre</label>
+                        <input type="text" id="client-name" class="w-full p-3 border border-gray-200 rounded-lg" placeholder="Ej: Sofía" required>
+                    </div>
+                    <button type="button" id="btn-register" class="w-full bg-[#5d4037] text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition flex justify-center items-center gap-2">
+                        <span>Registrarme</span>
+                        <span id="btn-loader-2" class="loader hidden"></span>
+                    </button>
+                </div>
+                
+                <p id="error-msg" class="text-red-500 text-sm mt-3 text-center hidden"></p>
+            </form>
         </div>
+    </div>
 
     <div id="catalog-app" class="hidden flex-col min-h-screen">
         <header class="sticky top-0 z-40 bg-white/90 backdrop-blur shadow-sm border-b border-[#f8b5d1]">
@@ -62,11 +98,11 @@
         </header>
 
         <div class="bg-[#5d4037] text-white py-8 px-4 text-center bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1555507036-ab794f27d2e9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
-            </div>
+        </div>
 
         <main class="flex-grow container mx-auto px-4 py-8">
             <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                </div>
+            </div>
             <div id="empty-msg" class="hidden text-center py-10 text-gray-500">
                 No hay productos disponibles en esta tienda.
             </div>
@@ -117,7 +153,7 @@
                 <div>
                     <h4 class="font-bold text-[#5d4037] mb-2">1. Resumen de tu Pedido</h4>
                     <div id="payment-order-summary" class="text-sm text-gray-600 space-y-1">
-                        </div>
+                    </div>
                     <div class="flex justify-between text-lg font-bold text-[#5d4037] mt-2 pt-2 border-t">
                         <span>Total a Pagar:</span>
                         <span id="payment-total">$0.00</span>
@@ -141,13 +177,12 @@
                 <a id="btn-whatsapp" href="#" target="_blank" class="w-full bg-green-500 text-white py-3 rounded-lg font-bold hover:bg-green-600 transition flex items-center justify-center gap-2 text-center">
                     <span>Enviar Pedido por WhatsApp</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.626-2.957 6.584-6.591 6.584zm3.615-4.903c-.19.168-.43.267-.68.267-.278 0-.54-.11-.75-.314-.21-.203-.43-.464-.61-.73C9.285 8.42 8.955 8.1 8.68 8.1c-.275 0-.53.11-.73.315-.2.202-.45.49-.6.72-.15.23-.3.46-.5.73-.2.27-.43.46-.7.46-.27 0-.53-.11-.73-.315-.2-.203-.45-.49-.6-.72C5.3 8.3 5.02 8.07 4.75 8.07c-.27 0-.53.11-.73.314-.2.203-.43.464-.61.73C3.22 9.25 3 9.5 3 9.77c0 .27.11.53.315.73.202.2.45.49.6.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.202.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46h.004c.27 0 .53-.11.73-.315.2-.202.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315s.45-.49.6-.72c.15-.23.3-.46.5-.73c.2-.27.43-.46.7-.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15-.23.3-.46.5-.73.2-.27.43-.46.7-.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15-.23.3-.46.5-.73.2-.27.43-.46.7-.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15-.23.3-.46.5-.73.2-.27.43-.4Change in code: "/>
+                        <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.626-2.957 6.584-6.591 6.584zm3.615-4.903c-.19.168-.43.267-.68.267-.278 0-.54-.11-.75-.314-.21-.203-.43-.464-.61-.73C9.285 8.42 8.955 8.1 8.68 8.1c-.275 0-.53.11-.73.315-.2.202-.45.49-.6.72-.15.23-.3.46-.5.73-.2.27-.43.46-.7.46-.27 0-.53-.11-.73-.315-.2-.203-.45-.49-.6-.72C5.3 8.3 5.02 8.07 4.75 8.07c-.27 0-.53.11-.73.314-.2.203-.43.464-.61.73C3.22 9.25 3 9.5 3 9.77c0 .27.11.53.315.73.202.2.45.49.6.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.202.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.202.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46z"/>
                     </svg>
                 </a>
             </div>
         </div>
     </div>
-
 
     <script>
         // =================================================
@@ -163,7 +198,7 @@
         let currentStore = null;
         let currentClient = null;
         let paymentMethods = null;
-        let cart = []; // <-- ¡NUESTRO CARRITO!
+        let cart = [];
 
         // Elementos DOM (Login)
         const loginScreen = document.getElementById('login-screen');
@@ -193,9 +228,8 @@
         const paymentLoadingMsg = document.getElementById('payment-loading-msg');
         const btnWhatsapp = document.getElementById('btn-whatsapp');
 
-
         // =================================================
-        // 3. LÓGICA DE LOGIN Y ACCESO (Sin cambios)
+        // 3. LÓGICA DE LOGIN Y ACCESO
         // =================================================
         document.addEventListener('DOMContentLoaded', () => {
             const savedStoreCode = localStorage.getItem('sofia_store_code');
@@ -224,7 +258,6 @@
             hideError();
 
             try {
-                // A. BUSCAR LA TIENDA
                 const { data: store, error: storeError } = await supabase
                     .from('usuarios')
                     .select('*')
@@ -236,7 +269,6 @@
                 
                 currentStore = store;
 
-                // B. BUSCAR EL CLIENTE
                 const { data: client } = await supabase
                     .from('clientes')
                     .select('*')
@@ -260,7 +292,7 @@
         }
         
         // =================================================
-        // 4. REGISTRO DE NUEVO CLIENTE (Sin cambios)
+        // 4. REGISTRO DE NUEVO CLIENTE
         // =================================================
         function showRegistrationStep() {
             step1.classList.add('hidden');
@@ -313,19 +345,41 @@
             
             catalogApp.classList.remove('hidden');
             catalogApp.classList.add('flex');
-            cartButton.classList.remove('hidden'); // <-- MUESTRA EL BOTÓN DE CARRITO
+            cartButton.classList.remove('hidden');
 
             loadProducts();
-            loadPaymentMethods(); // <-- NUEVO: Carga los métodos de pago
+            loadPaymentMethods();
         }
 
         async function loadProducts() {
-            // ... (Misma función loadProducts que antes) ...
+            productsGrid.innerHTML = '<div class="col-span-full text-center"><span class="loader"></span> Cargando productos...</div>';
+
+            const { data: products, error } = await supabase
+                .from('productos')
+                .select('*')
+                .eq('creado_por', currentStore.id)
+                .order('fecha_creacion', { ascending: false });
+
+            productsGrid.innerHTML = '';
+            document.getElementById('empty-msg').classList.add('hidden');
+
+            if (error) {
+                console.error("Error cargando productos:", error);
+                productsGrid.innerHTML = '<div class="col-span-full text-center text-red-400">Error al cargar productos.</div>';
+                return;
+            }
+
+            if (!products || products.length === 0) {
+                document.getElementById('empty-msg').classList.remove('hidden');
+                return;
+            }
+
+            products.forEach(product => {
+                renderProductCard(product);
+            });
         }
 
         function renderProductCard(product) {
-            // ... (Misma función renderProductCard que antes, PERO CAMBIA EL BOTÓN) ...
-            
             const encodedName = encodeURIComponent(product.nombre);
             const placeholderUrl = `https://placehold.co/600x400/f8b5d1/5d4037?text=${encodedName}`;
             const image = (product.imagen_url && product.imagen_url.length > 5) ? product.imagen_url : placeholderUrl;
@@ -360,18 +414,14 @@
         }
 
         // =================================================
-        // 6. NUEVA LÓGICA: GESTIÓN DEL CARRITO
+        // 6. LÓGICA: GESTIÓN DEL CARRITO
         // =================================================
-        
-        // Añade un producto al carrito
         function addToCart(product) {
             const existingItem = cart.find(item => item.id === product.id);
 
             if (existingItem) {
-                // Si ya existe, aumenta la cantidad
                 existingItem.quantity += 1;
             } else {
-                // Si es nuevo, lo añade con cantidad 1
                 cart.push({ ...product, quantity: 1 });
             }
             
@@ -386,13 +436,11 @@
             updateCartUI();
         }
 
-        // Actualiza la cantidad de un item en el carrito
         function updateCartQuantity(productId, newQuantity) {
             const item = cart.find(item => item.id === productId);
             if (!item) return;
 
             if (newQuantity <= 0) {
-                // Eliminar item si la cantidad es 0 o menos
                 cart = cart.filter(item => item.id !== productId);
             } else {
                 item.quantity = newQuantity;
@@ -401,14 +449,12 @@
             updateCartUI();
         }
 
-        // Actualiza el UI (badge, modal)
         function updateCartUI() {
             renderCartModal();
             updateCartBadge();
             calculateTotal();
         }
 
-        // Actualiza el badge (numerito) del carrito
         function updateCartBadge() {
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
             if (totalItems > 0) {
@@ -419,28 +465,24 @@
             }
         }
 
-        // Calcula y muestra el total
         function calculateTotal() {
             const total = cart.reduce((sum, item) => sum + (item.precio * item.quantity), 0);
             const formattedTotal = `$${total.toFixed(2)}`;
             cartTotal.textContent = formattedTotal;
             paymentTotal.textContent = formattedTotal;
-
-            // Deshabilita el botón de pagar si el carrito está vacío
             btnCheckout.disabled = cart.length === 0;
             return total;
         }
 
-        // Renderiza los items dentro del modal del carrito
         function renderCartModal() {
             if (cart.length === 0) {
-                cartItemsContainer.innerHTML = ''; // Limpia por si acaso
+                cartItemsContainer.innerHTML = '';
                 cartEmptyMsg.classList.remove('hidden');
                 return;
             }
 
             cartEmptyMsg.classList.add('hidden');
-            cartItemsContainer.innerHTML = ''; // Limpia el contenedor
+            cartItemsContainer.innerHTML = '';
 
             cart.forEach(item => {
                 const itemEl = document.createElement('div');
@@ -465,10 +507,8 @@
         }
         
         // =================================================
-        // 7. NUEVA LÓGICA: CHECKOUT Y PAGO
+        // 7. LÓGICA: CHECKOUT Y PAGO
         // =================================================
-        
-        // Carga los métodos de pago de la tienda
         async function loadPaymentMethods() {
             paymentLoadingMsg.classList.remove('hidden');
             paymentDetailsContainer.innerHTML = '';
@@ -492,9 +532,8 @@
                 return;
             }
             
-            paymentMethods = data; // Guarda los datos
+            paymentMethods = data;
             
-            // Renderizar Datos Bancarios
             if (data.bank_name) {
                 paymentDetailsContainer.innerHTML += `
                     <div class="p-4 bg-gray-50 rounded-lg border">
@@ -509,7 +548,6 @@
                 `;
             }
 
-            // Renderizar QR
             if (data.qr_image_url) {
                 paymentDetailsContainer.innerHTML += `
                     <div class="p-4 bg-gray-50 rounded-lg border">
@@ -520,31 +558,25 @@
             }
         }
 
-        // Muestra el modal del carrito
         function showCartModal() {
-            updateCartUI(); // Asegura que esté actualizado
+            updateCartUI();
             cartModal.classList.add('flex');
             cartModal.classList.remove('hidden');
         }
 
-        // Muestra el modal de pago
         function showPaymentModal() {
-            // 1. Renderizar el resumen del pedido
             paymentOrderSummary.innerHTML = cart.map(item => `
                 <div>${item.quantity} x ${item.nombre} = <strong>$${(item.quantity * item.precio).toFixed(2)}</strong></div>
             `).join('');
             
-            // 2. Generar el link de WhatsApp
             const whatsappLink = generateWhatsAppLink();
             btnWhatsapp.href = whatsappLink;
 
-            // 3. Ocultar modal de carrito y mostrar modal de pago
             closeModal('cart-modal');
             paymentModal.classList.add('flex');
             paymentModal.classList.remove('hidden');
         }
 
-        // Genera el enlace de WhatsApp
         function generateWhatsAppLink() {
             let message = `¡Hola *${currentStore.nombre}*! 🙋‍♀️\n\n`;
             message += `Quisiera hacer el siguiente pedido:\n\n`;
@@ -560,25 +592,15 @@
             message += `Teléfono: ${currentClient.telefono}\n\n`;
             message += `¡Quedo atento/a para coordinar el pago!`;
 
-            // Codifica el mensaje para URL
             const encodedMessage = encodeURIComponent(message);
+            const storePhone = currentStore.telefono || 'TU_NUMERO_DE_WHATSAPP_AQUI';
             
-            // Obtiene el teléfono de la tienda (debes tenerlo en la tabla 'usuarios')
-            // Si no lo tienes, usa un número por defecto o pídelo
-            const storePhone = currentStore.telefono || 'TU_NUMERO_DE_WHATSAPP_AQUI'; // Reemplaza si es necesario
-            
-            // Si no tienes el teléfono del admin en `currentStore`, tendrás que añadirlo a la tabla `usuarios`
-            // y asegurarte de que se obtiene en la función `handleAccess`.
-            
-            // Vamos a asumir que no lo tienes y pedirlo en el admin
             if (!currentStore.telefono) {
                 console.warn("La tienda no tiene un número de teléfono configurado.");
-                // Deberías añadir un campo 'telefono' a la tabla 'usuarios'
             }
 
             return `https://wa.me/${storePhone}?text=${encodedMessage}`;
         }
-
 
         // =================================================
         // 8. UTILIDADES
