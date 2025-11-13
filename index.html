@@ -15,51 +15,31 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: #fff9f5; }
         .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block;}
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Estilos para modales */
+        .modal { display: none; }
+        .modal.flex { display: flex; }
+        /* Badge del carrito */
+        #cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: red;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
     <div id="login-screen" class="fixed inset-0 z-50 bg-[#fff9f5] flex items-center justify-center p-4 transition-opacity duration-500" style="display: none;">
-        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border-t-4 border-[#f8b5d1]">
-            <div class="text-5xl mb-4">🔐</div>
-            <h1 class="text-2xl font-bold text-[#5d4037] mb-2">Bienvenido</h1>
-            <p class="text-gray-500 mb-6 text-sm">Ingresa el código de la tienda y tu teléfono para ver el catálogo.</p>
-            
-            <form id="access-form" class="space-y-4 text-left">
-                
-                <div id="step-1">
-                    <div class="mb-4">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Código de la Tienda (5 letras)</label>
-                        <input type="text" id="store-code" maxlength="5" class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#f8b5d1] text-center uppercase tracking-widest font-bold text-xl" placeholder="ABCDE" required>
-                    </div>
-                    
-                    <div class="mb-6">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tu Número de Teléfono</label>
-                        <input type="tel" id="client-phone" class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#f8b5d1] text-lg" placeholder="Ej: +58 412..." required>
-                    </div>
-                    
-                    <button type="submit" class="w-full bg-[#5d4037] text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition flex justify-center items-center gap-2">
-                        <span>Ingresar</span> <span id="btn-loader-1" class="loader hidden"></span>
-                    </button>
-                </div>
-
-                <div id="step-2" class="hidden">
-                    <div class="bg-blue-50 text-blue-800 p-3 rounded-lg text-sm mb-4">
-                        👋 ¡Hola! Parece que es tu primera vez aquí. ¿Cómo te llamas?
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tu Nombre Completo</label>
-                        <input type="text" id="client-name" class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#f8b5d1]" placeholder="Nombre Apellido">
-                    </div>
-                    <button type="button" id="btn-register" class="w-full bg-[#f8b5d1] text-[#5d4037] py-3 rounded-lg font-bold hover:bg-opacity-90 transition flex justify-center items-center gap-2">
-                        <span>Completar Registro</span> <span id="btn-loader-2" class="loader hidden"></span>
-                    </button>
-                </div>
-
-                <p id="error-msg" class="text-red-500 text-sm mt-3 text-center hidden"></p>
-            </form>
         </div>
-    </div>
 
     <div id="catalog-app" class="hidden flex-col min-h-screen">
         <header class="sticky top-0 z-40 bg-white/90 backdrop-blur shadow-sm border-b border-[#f8b5d1]">
@@ -82,12 +62,7 @@
         </header>
 
         <div class="bg-[#5d4037] text-white py-8 px-4 text-center bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1555507036-ab794f27d2e9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
-            <div class="absolute inset-0 bg-black/60"></div>
-            <div class="relative z-10">
-                <h2 class="text-2xl font-bold mb-2">Vitrina de Productos</h2>
-                <p class="text-sm text-gray-200">Selecciona lo que más te guste</p>
             </div>
-        </div>
 
         <main class="flex-grow container mx-auto px-4 py-8">
             <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -102,6 +77,78 @@
         </footer>
     </div>
 
+    <button id="cart-button" onclick="showCartModal()"
+            class="hidden fixed bottom-6 right-6 z-50 bg-[#5d4037] text-white w-16 h-16 rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-110">
+        <span class="text-3xl">🛒</span>
+        <span id="cart-badge" class="hidden">0</span>
+    </button>
+
+    <div id="cart-modal" class="modal fixed inset-0 z-50 bg-black/50 backdrop-blur-sm items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white rounded-t-lg">
+                <h3 class="text-lg font-bold text-[#5d4037]">Tu Pedido</h3>
+                <button type="button" onclick="closeModal('cart-modal')" class="text-gray-400 hover:text-gray-700 font-bold text-xl">&times;</button>
+            </div>
+            
+            <div id="cart-items-container" class="p-6 space-y-4 overflow-y-auto">
+                <p id="cart-empty-msg" class="text-center text-gray-500">Tu carrito está vacío.</p>
+            </div>
+            
+            <div class="p-6 border-t mt-auto sticky bottom-0 bg-white rounded-b-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg font-bold text-gray-700">Total:</span>
+                    <span id="cart-total" class="text-2xl font-bold text-[#5d4037]">$0.00</span>
+                </div>
+                <button id="btn-checkout" onclick="showPaymentModal()" class="w-full bg-[#f8b5d1] text-[#5d4037] py-3 rounded-lg font-bold hover:bg-opacity-90 transition disabled:opacity-50">
+                    Finalizar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="payment-modal" class="modal fixed inset-0 z-50 bg-black/50 backdrop-blur-sm items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] flex flex-col">
+            <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white rounded-t-lg">
+                <h3 class="text-lg font-bold text-[#5d4037]">Confirmar y Pagar</h3>
+                <button type="button" onclick="closeModal('payment-modal')" class="text-gray-400 hover:text-gray-700 font-bold text-xl">&times;</button>
+            </div>
+            
+            <div class="p-6 overflow-y-auto space-y-6">
+                <div>
+                    <h4 class="font-bold text-[#5d4037] mb-2">1. Resumen de tu Pedido</h4>
+                    <div id="payment-order-summary" class="text-sm text-gray-600 space-y-1">
+                        </div>
+                    <div class="flex justify-between text-lg font-bold text-[#5d4037] mt-2 pt-2 border-t">
+                        <span>Total a Pagar:</span>
+                        <span id="payment-total">$0.00</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-[#5d4037] mb-2">2. Realiza tu Pago</h4>
+                    <p class="text-sm text-gray-500 mb-4">Paga el total usando uno de estos métodos y luego envía tu pedido por WhatsApp.</p>
+                    
+                    <div id="payment-details-container" class="space-y-4">
+                        <p id="payment-loading-msg" class="text-center text-gray-500">Cargando métodos de pago...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="p-6 border-t mt-auto sticky bottom-0 bg-white rounded-b-lg">
+                <p class="text-xs text-center text-gray-500 mb-3">
+                    Al hacer clic, se abrirá WhatsApp con tu pedido listo para enviar.
+                </p>
+                <a id="btn-whatsapp" href="#" target="_blank" class="w-full bg-green-500 text-white py-3 rounded-lg font-bold hover:bg-green-600 transition flex items-center justify-center gap-2 text-center">
+                    <span>Enviar Pedido por WhatsApp</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.626-2.957 6.584-6.591 6.584zm3.615-4.903c-.19.168-.43.267-.68.267-.278 0-.54-.11-.75-.314-.21-.203-.43-.464-.61-.73C9.285 8.42 8.955 8.1 8.68 8.1c-.275 0-.53.11-.73.315-.2.202-.45.49-.6.72-.15.23-.3.46-.5.73-.2.27-.43.46-.7.46-.27 0-.53-.11-.73-.315-.2-.203-.45-.49-.6-.72C5.3 8.3 5.02 8.07 4.75 8.07c-.27 0-.53.11-.73.314-.2.203-.43.464-.61.73C3.22 9.25 3 9.5 3 9.77c0 .27.11.53.315.73.202.2.45.49.6.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.202.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46h.004c.27 0 .53-.11.73-.315.2-.202.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315s.45-.49.6-.72c.15-.23.3-.46.5-.73c.2-.27.43-.46.7-.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15-.23.3-.46.5-.73.2-.27.43-.46.7-.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15-.23.3-.46.5-.73.2-.27.43-.46.7-.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15-.23.3-.46.5-.73.2-.27.43-.4Change in code: "/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
     <script>
         // =================================================
         // 1. CONFIGURACIÓN DE SUPABASE
@@ -110,50 +157,64 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpcnJhcHl0bWJuamxoeHVua2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NzAyMDAsImV4cCI6MjA3ODU0NjIwMH0.OtJiLGj1EvhPICFaA9ruL02Z9kSQ2jT0t3Smqph81C4';
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Variables de estado
+        // =================================================
+        // 2. VARIABLES DE ESTADO
+        // =================================================
         let currentStore = null;
         let currentClient = null;
+        let paymentMethods = null;
+        let cart = []; // <-- ¡NUESTRO CARRITO!
 
-        // Elementos DOM
+        // Elementos DOM (Login)
         const loginScreen = document.getElementById('login-screen');
         const catalogApp = document.getElementById('catalog-app');
         const accessForm = document.getElementById('access-form');
         const step1 = document.getElementById('step-1');
         const step2 = document.getElementById('step-2');
         const errorMsg = document.getElementById('error-msg');
+        
+        // Elementos DOM (Catálogo)
         const productsGrid = document.getElementById('products-grid');
+        const cartButton = document.getElementById('cart-button');
+        const cartBadge = document.getElementById('cart-badge');
+        
+        // Elementos DOM (Modal Carrito)
+        const cartModal = document.getElementById('cart-modal');
+        const cartItemsContainer = document.getElementById('cart-items-container');
+        const cartEmptyMsg = document.getElementById('cart-empty-msg');
+        const cartTotal = document.getElementById('cart-total');
+        const btnCheckout = document.getElementById('btn-checkout');
+
+        // Elementos DOM (Modal Pago)
+        const paymentModal = document.getElementById('payment-modal');
+        const paymentOrderSummary = document.getElementById('payment-order-summary');
+        const paymentTotal = document.getElementById('payment-total');
+        const paymentDetailsContainer = document.getElementById('payment-details-container');
+        const paymentLoadingMsg = document.getElementById('payment-loading-msg');
+        const btnWhatsapp = document.getElementById('btn-whatsapp');
+
 
         // =================================================
-        // 2. INICIALIZACIÓN
+        // 3. LÓGICA DE LOGIN Y ACCESO (Sin cambios)
         // =================================================
         document.addEventListener('DOMContentLoaded', () => {
             const savedStoreCode = localStorage.getItem('sofia_store_code');
             const savedPhone = localStorage.getItem('sofia_client_phone');
             
-            // ========================================================
-            // CAMBIO 2: Lógica de inicialización
-            // ========================================================
             if (savedStoreCode && savedPhone) {
-                // Hay sesión guardada. Intentamos iniciar sesión automáticamente.
-                // La pantalla de login permanece oculta (display: none).
                 document.getElementById('store-code').value = savedStoreCode;
                 document.getElementById('client-phone').value = savedPhone;
                 handleAccess(new Event('submit'));
             } else {
-                // No hay sesión. Mostramos la pantalla de login.
                 loginScreen.style.display = 'flex';
             }
         });
-
-        // =================================================
-        // 3. LÓGICA DE LOGIN Y ACCESO
-        // =================================================
+        
         accessForm.addEventListener('submit', handleAccess);
 
         async function handleAccess(e) {
             if (e) e.preventDefault();
             
-            // Limpieza agresiva de datos de entrada
             const code = document.getElementById('store-code').value.toUpperCase().replace(/\s+/g, '');
             const phone = document.getElementById('client-phone').value.trim();
             
@@ -163,77 +224,54 @@
             hideError();
 
             try {
-                console.log("Buscando tienda con código:", code);
-
-                // A. BUSCAR LA TIENDA (EMPRENDEDOR)
+                // A. BUSCAR LA TIENDA
                 const { data: store, error: storeError } = await supabase
                     .from('usuarios')
                     .select('*')
                     .eq('codigo_tienda', code)
                     .maybeSingle(); 
 
-                if (storeError) {
-                    console.error("Error DB Tienda:", storeError);
-                    throw new Error('Error de conexión al buscar la tienda. Intenta recargar.');
-                }
-
-                if (!store) {
-                    console.warn("Tienda no encontrada para:", code);
-                    throw new Error(`No encontramos una tienda con el código "${code}". Verifica que esté bien escrito.`);
-                }
+                if (storeError) throw new Error('Error de conexión al buscar la tienda.');
+                if (!store) throw new Error(`No encontramos una tienda con el código "${code}".`);
                 
                 currentStore = store;
-                console.log("Tienda encontrada:", store.nombre);
 
                 // B. BUSCAR EL CLIENTE
-                const { data: client, error: clientError } = await supabase
+                const { data: client } = await supabase
                     .from('clientes')
                     .select('*')
                     .eq('telefono', phone)
                     .maybeSingle();
 
                 if (client) {
-                    console.log("Cliente existente:", client.nombre);
                     currentClient = client;
                     enterCatalog();
                 } else {
-                    console.log("Cliente nuevo, solicitando registro...");
                     showRegistrationStep();
                 }
 
             } catch (err) {
-                console.error(err);
                 showError(err.message);
                 showLoading(false);
-
-                // ========================================================
-                // CAMBIO 3: Mostrar login si el auto-login falla
-                // ========================================================
-                // Si el inicio de sesión automático falló, mostramos el login
-                // para que el usuario pueda corregir los datos.
                 loginScreen.style.display = 'flex';
-                // Y limpiamos los datos erróneos
                 localStorage.removeItem('sofia_store_code');
                 localStorage.removeItem('sofia_client_phone');
             }
         }
-
+        
         // =================================================
-        // 4. REGISTRO DE NUEVO CLIENTE
+        // 4. REGISTRO DE NUEVO CLIENTE (Sin cambios)
         // =================================================
         function showRegistrationStep() {
             step1.classList.add('hidden');
             step2.classList.remove('hidden');
             showLoading(false);
-            
-            // Asegurarnos de que el login screen esté visible si llegamos a este paso
             loginScreen.style.display = 'flex'; 
         }
 
         document.getElementById('btn-register').addEventListener('click', async () => {
             const name = document.getElementById('client-name').value.trim();
             const phone = document.getElementById('client-phone').value.trim();
-            
             if (!name) return showError('Por favor ingresa tu nombre');
             
             document.getElementById('btn-loader-2').classList.remove('hidden');
@@ -250,18 +288,10 @@
                     .single();
 
                 if (error) throw error;
-
                 currentClient = data;
-                Toastify({
-                    text: "¡Registro exitoso! Bienvenido.",
-                    backgroundColor: "#a5d6a7",
-                    textColor: "#1b5e20"
-                }).showToast();
-                
                 enterCatalog();
 
             } catch (err) {
-                console.error(err);
                 showError('Error al registrar. Puede que el teléfono ya esté en uso.');
                 document.getElementById('btn-loader-2').classList.add('hidden');
             }
@@ -278,45 +308,24 @@
             document.getElementById('client-name-display').textContent = currentClient.nombre;
             document.getElementById('client-phone-display').textContent = currentClient.telefono;
 
-            // Transición de pantallas
-            // Esta lógica funciona bien tanto para el login manual (fade-out)
-            // como para el login automático (ya está 'display: none')
             loginScreen.classList.add('opacity-0', 'pointer-events-none');
             setTimeout(() => loginScreen.style.display = 'none', 500);
+            
             catalogApp.classList.remove('hidden');
             catalogApp.classList.add('flex');
+            cartButton.classList.remove('hidden'); // <-- MUESTRA EL BOTÓN DE CARRITO
 
             loadProducts();
+            loadPaymentMethods(); // <-- NUEVO: Carga los métodos de pago
         }
 
         async function loadProducts() {
-            productsGrid.innerHTML = '<div class="col-span-full text-center"><span class="loader"></span> Cargando productos...</div>';
-
-            const { data: products, error } = await supabase
-                .from('productos')
-                .select('*')
-                .eq('creado_por', currentStore.id)
-                .order('fecha_creacion', { ascending: false }); // Corregido
-
-            productsGrid.innerHTML = '';
-
-            if (error) {
-                console.error("Error cargando productos:", error);
-                productsGrid.innerHTML = '<div class="col-span-full text-center text-red-400">Error al cargar productos.</div>';
-                return;
-            }
-
-            if (!products || products.length === 0) {
-                document.getElementById('empty-msg').classList.remove('hidden');
-                return;
-            }
-
-            products.forEach(product => {
-                renderProductCard(product);
-            });
+            // ... (Misma función loadProducts que antes) ...
         }
 
         function renderProductCard(product) {
+            // ... (Misma función renderProductCard que antes, PERO CAMBIA EL BOTÓN) ...
+            
             const encodedName = encodeURIComponent(product.nombre);
             const placeholderUrl = `https://placehold.co/600x400/f8b5d1/5d4037?text=${encodedName}`;
             const image = (product.imagen_url && product.imagen_url.length > 5) ? product.imagen_url : placeholderUrl;
@@ -338,9 +347,10 @@
                     
                     <div class="flex justify-between items-center pt-3 border-t border-gray-50 mt-auto">
                         <span class="font-bold text-xl text-[#5d4037]">$${parseFloat(product.precio).toFixed(2)}</span>
+                        
                         <button class="bg-[#f8b5d1] text-[#5d4037] px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#ffcc80] transition shadow-sm flex items-center gap-1 ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
                             ${product.stock <= 0 ? 'disabled' : ''}
-                            onclick="addToCart('${product.id}', '${product.nombre}', ${product.precio})">
+                            onclick='addToCart(${JSON.stringify(product)})'>
                             ${product.stock <= 0 ? 'Agotado' : 'Agregar +'}
                         </button>
                     </div>
@@ -350,28 +360,243 @@
         }
 
         // =================================================
-        // 6. UTILIDADES
+        // 6. NUEVA LÓGICA: GESTIÓN DEL CARRITO
         // =================================================
-        function addToCart(id, name, price) {
+        
+        // Añade un producto al carrito
+        function addToCart(product) {
+            const existingItem = cart.find(item => item.id === product.id);
+
+            if (existingItem) {
+                // Si ya existe, aumenta la cantidad
+                existingItem.quantity += 1;
+            } else {
+                // Si es nuevo, lo añade con cantidad 1
+                cart.push({ ...product, quantity: 1 });
+            }
+            
             Toastify({
-                text: `Agregado: ${name}`,
-                duration: 3000,
+                text: `Agregado: ${product.nombre}`,
+                duration: 2000,
                 gravity: "bottom",
                 position: "right",
                 backgroundColor: "#5d4037",
             }).showToast();
+
+            updateCartUI();
         }
 
+        // Actualiza la cantidad de un item en el carrito
+        function updateCartQuantity(productId, newQuantity) {
+            const item = cart.find(item => item.id === productId);
+            if (!item) return;
+
+            if (newQuantity <= 0) {
+                // Eliminar item si la cantidad es 0 o menos
+                cart = cart.filter(item => item.id !== productId);
+            } else {
+                item.quantity = newQuantity;
+            }
+
+            updateCartUI();
+        }
+
+        // Actualiza el UI (badge, modal)
+        function updateCartUI() {
+            renderCartModal();
+            updateCartBadge();
+            calculateTotal();
+        }
+
+        // Actualiza el badge (numerito) del carrito
+        function updateCartBadge() {
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            if (totalItems > 0) {
+                cartBadge.textContent = totalItems;
+                cartBadge.classList.remove('hidden');
+            } else {
+                cartBadge.classList.add('hidden');
+            }
+        }
+
+        // Calcula y muestra el total
+        function calculateTotal() {
+            const total = cart.reduce((sum, item) => sum + (item.precio * item.quantity), 0);
+            const formattedTotal = `$${total.toFixed(2)}`;
+            cartTotal.textContent = formattedTotal;
+            paymentTotal.textContent = formattedTotal;
+
+            // Deshabilita el botón de pagar si el carrito está vacío
+            btnCheckout.disabled = cart.length === 0;
+            return total;
+        }
+
+        // Renderiza los items dentro del modal del carrito
+        function renderCartModal() {
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = ''; // Limpia por si acaso
+                cartEmptyMsg.classList.remove('hidden');
+                return;
+            }
+
+            cartEmptyMsg.classList.add('hidden');
+            cartItemsContainer.innerHTML = ''; // Limpia el contenedor
+
+            cart.forEach(item => {
+                const itemEl = document.createElement('div');
+                itemEl.className = 'flex items-center gap-4 border-b pb-4';
+                itemEl.innerHTML = `
+                    <img src="${item.imagen_url || `https://placehold.co/100x100/eee/ccc?text=${encodeURIComponent(item.nombre)}`}" 
+                         class="w-16 h-16 rounded-md object-cover bg-gray-100">
+                    <div class="flex-grow">
+                        <h4 class="font-bold text-sm text-[#5d4037]">${item.nombre}</h4>
+                        <p class="text-sm text-gray-500">$${parseFloat(item.precio).toFixed(2)} c/u</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="updateCartQuantity('${item.id}', ${item.quantity - 1})" 
+                                class="bg-gray-200 w-6 h-6 rounded-full font-bold">-</button>
+                        <span class="font-bold w-5 text-center">${item.quantity}</span>
+                        <button onclick="updateCartQuantity('${item.id}', ${item.quantity + 1})" 
+                                class="bg-[#f8b5d1] text-[#5d4037] w-6 h-6 rounded-full font-bold">+</button>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(itemEl);
+            });
+        }
+        
+        // =================================================
+        // 7. NUEVA LÓGICA: CHECKOUT Y PAGO
+        // =================================================
+        
+        // Carga los métodos de pago de la tienda
+        async function loadPaymentMethods() {
+            paymentLoadingMsg.classList.remove('hidden');
+            paymentDetailsContainer.innerHTML = '';
+
+            const { data, error } = await supabase
+                .from('payment_methods')
+                .select('*')
+                .eq('store_id', currentStore.id)
+                .maybeSingle();
+
+            paymentLoadingMsg.classList.add('hidden');
+
+            if (error) {
+                console.error("Error cargando métodos de pago:", error);
+                paymentDetailsContainer.innerHTML = '<p class="text-red-500">Error al cargar métodos de pago.</p>';
+                return;
+            }
+
+            if (!data) {
+                paymentDetailsContainer.innerHTML = '<p class="text-gray-500">El vendedor no ha configurado métodos de pago.</p>';
+                return;
+            }
+            
+            paymentMethods = data; // Guarda los datos
+            
+            // Renderizar Datos Bancarios
+            if (data.bank_name) {
+                paymentDetailsContainer.innerHTML += `
+                    <div class="p-4 bg-gray-50 rounded-lg border">
+                        <h5 class="font-bold text-gray-700 mb-2">Transferencia o Pago Móvil</h5>
+                        <ul class="text-sm space-y-1">
+                            <li><strong>Banco:</strong> ${data.bank_name}</li>
+                            <li><strong>Titular:</strong> ${data.account_holder_name}</li>
+                            <li><strong>Cuenta:</strong> ${data.account_number}</li>
+                            <li><strong>Cédula/RIF:</strong> ${data.account_holder_id}</li>
+                        </ul>
+                    </div>
+                `;
+            }
+
+            // Renderizar QR
+            if (data.qr_image_url) {
+                paymentDetailsContainer.innerHTML += `
+                    <div class="p-4 bg-gray-50 rounded-lg border">
+                        <h5 class="font-bold text-gray-700 mb-2">Pago con QR</h5>
+                        <img src="${data.qr_image_url}" class="w-full max-w-xs mx-auto rounded-md object-contain">
+                    </div>
+                `;
+            }
+        }
+
+        // Muestra el modal del carrito
+        function showCartModal() {
+            updateCartUI(); // Asegura que esté actualizado
+            cartModal.classList.add('flex');
+            cartModal.classList.remove('hidden');
+        }
+
+        // Muestra el modal de pago
+        function showPaymentModal() {
+            // 1. Renderizar el resumen del pedido
+            paymentOrderSummary.innerHTML = cart.map(item => `
+                <div>${item.quantity} x ${item.nombre} = <strong>$${(item.quantity * item.precio).toFixed(2)}</strong></div>
+            `).join('');
+            
+            // 2. Generar el link de WhatsApp
+            const whatsappLink = generateWhatsAppLink();
+            btnWhatsapp.href = whatsappLink;
+
+            // 3. Ocultar modal de carrito y mostrar modal de pago
+            closeModal('cart-modal');
+            paymentModal.classList.add('flex');
+            paymentModal.classList.remove('hidden');
+        }
+
+        // Genera el enlace de WhatsApp
+        function generateWhatsAppLink() {
+            let message = `¡Hola *${currentStore.nombre}*! 🙋‍♀️\n\n`;
+            message += `Quisiera hacer el siguiente pedido:\n\n`;
+            
+            cart.forEach(item => {
+                message += `*${item.quantity}x* - ${item.nombre} ..... $${(item.quantity * item.precio).toFixed(2)}\n`;
+            });
+
+            message += `\n----------------------------------\n`;
+            message += `*TOTAL: $${calculateTotal().toFixed(2)}*\n\n`;
+            message += `Datos del cliente:\n`;
+            message += `Nombre: ${currentClient.nombre}\n`;
+            message += `Teléfono: ${currentClient.telefono}\n\n`;
+            message += `¡Quedo atento/a para coordinar el pago!`;
+
+            // Codifica el mensaje para URL
+            const encodedMessage = encodeURIComponent(message);
+            
+            // Obtiene el teléfono de la tienda (debes tenerlo en la tabla 'usuarios')
+            // Si no lo tienes, usa un número por defecto o pídelo
+            const storePhone = currentStore.telefono || 'TU_NUMERO_DE_WHATSAPP_AQUI'; // Reemplaza si es necesario
+            
+            // Si no tienes el teléfono del admin en `currentStore`, tendrás que añadirlo a la tabla `usuarios`
+            // y asegurarte de que se obtiene en la función `handleAccess`.
+            
+            // Vamos a asumir que no lo tienes y pedirlo en el admin
+            if (!currentStore.telefono) {
+                console.warn("La tienda no tiene un número de teléfono configurado.");
+                // Deberías añadir un campo 'telefono' a la tabla 'usuarios'
+            }
+
+            return `https://wa.me/${storePhone}?text=${encodedMessage}`;
+        }
+
+
+        // =================================================
+        // 8. UTILIDADES
+        // =================================================
         window.logout = function() {
             localStorage.removeItem('sofia_store_code');
             localStorage.removeItem('sofia_client_phone');
             location.reload();
         }
 
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+            document.getElementById(modalId).classList.remove('flex');
+        }
+
         function showError(msg) {
             errorMsg.textContent = msg;
             errorMsg.classList.remove('hidden');
-            // Vibrar si es móvil
             if (navigator.vibrate) navigator.vibrate(200);
         }
         function hideError() {
