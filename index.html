@@ -124,8 +124,11 @@
                 <button type="button" onclick="closeModal('cart-modal')" class="text-gray-400 hover:text-gray-700 font-bold text-xl">&times;</button>
             </div>
             
-            <div id="cart-items-container" class="p-6 space-y-4 overflow-y-auto">
-                <p id="cart-empty-msg" class="text-center text-gray-500">Tu carrito está vacío.</p>
+            <div class="flex-grow overflow-y-auto">
+                <p id="cart-empty-msg" class="p-6 text-center text-gray-500">Tu carrito está vacío.</p>
+                
+                <div id="cart-items-container" class="p-6 space-y-4">
+                    </div>
             </div>
             
             <div class="p-6 border-t mt-auto sticky bottom-0 bg-white rounded-b-lg">
@@ -139,7 +142,6 @@
             </div>
         </div>
     </div>
-
     <div id="payment-modal" class="modal fixed inset-0 z-50 bg-black/50 backdrop-blur-sm items-center justify-center p-4">
         <div class="bg-white rounded-lg shadow-xl max-w-lg w-full max-h-[80vh] flex flex-col">
             <div class="p-4 border-b flex justify-between items-center sticky top-0 bg-white rounded-t-lg">
@@ -175,7 +177,7 @@
                 <a id="btn-whatsapp" href="#" target="_blank" class="w-full bg-green-500 text-white py-3 rounded-lg font-bold hover:bg-green-600 transition flex items-center justify-center gap-2 text-center">
                     <span>Enviar Pedido por WhatsApp</span>
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                        <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.626-2.957 6.584-6.591 6.584zm3.615-4.903c-.19.168-.43.267-.68.267-.278 0-.54-.11-.75-.314-.21-.203-.43-.464-.61-.73C9.285 8.42 8.955 8.1 8.68 8.1c-.275 0-.53.11-.73.315-.2.202-.45.49-.6.72-.15.23-.3.46-.5.73-.2.27-.43.46-.7.46-.27 0-.53-.11-.73-.315-.2-.203-.45-.49-.6-.72C5.3 8.3 5.02 8.07 4.75 8.07c-.27 0-.53.11-.73.314-.2.203-.43.464-.61.73C3.22 9.25 3 9.5 3 9.77c0 .27.11.53.315.73.202.2.45.49.6.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.202.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.202.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46z"/>
+                        <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.626-2.957 6.584-6.591 6.584zm3.615-4.903c-.19.168-.43.267-.68.267-.278 0-.54-.11-.75-.314-.21-.203-.43-.464-.61-.73C9.285 8.42 8.955 8.1 8.68 8.1c-.275 0-.53.11-.73.315-.2.202-.45.49-.6.72-.15.23-.3.46-.5.73-.2.27-.43.46-.7.46-.27 0-.53-.11-.73-.315-.2-.203-.45-.49-.6-.72C5.3 8.3 5.02 8.07 4.75 8.07c-.27 0-.53.11-.73.314-.2.203-.43.464-.61.73C3.22 9.25 3 9.5 3 9.77c0 .27.11.53.315.73.202.2.45.49.6.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.202.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.202.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.im.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46.27 0 .53-.11.73-.315.2-.203.45-.49.6-.72.15.23.3.46.5.73.2.27.43.46.7.46z"/>
                     </svg>
                 </a>
             </div>
@@ -199,34 +201,25 @@
         let cart = [];
 
         // =================================================
-        // 3. ¡¡¡CAMBIO IMPORTANTE!!!
-        //    Toda la lógica de ejecución, selección de elementos
-        //    y event listeners DEBE IR DENTRO DE ESTE BLOQUE
+        // 3. LÓGICA DE INICIO (SIN CAMBIOS)
         // =================================================
         document.addEventListener('DOMContentLoaded', () => {
 
-            // AHORA SÍ: Seleccionamos los elementos DOM
-            // (Movimos esto de afuera hacia adentro)
+            // Seleccionamos los elementos DOM
             const loginScreen = document.getElementById('login-screen');
             const catalogApp = document.getElementById('catalog-app');
             const accessForm = document.getElementById('access-form');
             const step1 = document.getElementById('step-1');
             const step2 = document.getElementById('step-2');
             const errorMsg = document.getElementById('error-msg');
-            
-            // Elementos DOM (Catálogo)
             const productsGrid = document.getElementById('products-grid');
             const cartButton = document.getElementById('cart-button');
             const cartBadge = document.getElementById('cart-badge');
-            
-            // Elementos DOM (Modal Carrito)
             const cartModal = document.getElementById('cart-modal');
             const cartItemsContainer = document.getElementById('cart-items-container');
             const cartEmptyMsg = document.getElementById('cart-empty-msg');
             const cartTotal = document.getElementById('cart-total');
             const btnCheckout = document.getElementById('btn-checkout');
-
-            // Elementos DOM (Modal Pago)
             const paymentModal = document.getElementById('payment-modal');
             const paymentOrderSummary = document.getElementById('payment-order-summary');
             const paymentTotal = document.getElementById('payment-total');
@@ -234,22 +227,19 @@
             const paymentLoadingMsg = document.getElementById('payment-loading-msg');
             const btnWhatsapp = document.getElementById('btn-whatsapp');
 
-            // Lógica de inicio (la que ya tenías)
+            // Lógica de inicio
             const savedStoreCode = localStorage.getItem('sofia_store_code');
             const savedPhone = localStorage.getItem('sofia_client_phone');
             
             if (savedStoreCode && savedPhone) {
                 document.getElementById('store-code').value = savedStoreCode;
                 document.getElementById('client-phone').value = savedPhone;
-                // CORRECCIÓN: Llamamos a handleAccess(null) porque el listener
-                // aún no está adjunto. Tu función ya soporta 'e' nulo.
                 handleAccess(null);
             } else {
                 loginScreen.style.display = 'flex';
             }
 
-            // AHORA SÍ: Adjuntamos los listeners
-            // (Movimos esto de afuera hacia adentro)
+            // Adjuntamos los listeners
             accessForm.addEventListener('submit', handleAccess);
 
             document.getElementById('btn-register').addEventListener('click', async () => {
@@ -279,17 +269,12 @@
                     document.getElementById('btn-loader-2').classList.add('hidden');
                 }
             });
-
-            // Para que los 'onclick' del HTML funcionen, las funciones
-            // deben estar en el scope global (window). Las definimos más abajo
-            // fuera de este bloque DOMContentLoaded.
         });
         
         // =================================================
-        // 4. LÓGICA DE LOGIN Y ACCESO (SOLO DEFINICIONES DE FUNCIONES)
+        // 4. LÓGICA DE LOGIN Y ACCESO (SIN CAMBIOS)
         // =================================================
         async function handleAccess(e) {
-            // Tu función ya maneja 'e' nulo, ¡perfecto!
             if (e) e.preventDefault(); 
             
             const code = document.getElementById('store-code').value.toUpperCase().replace(/\s+/g, '');
@@ -328,8 +313,6 @@
             } catch (err) {
                 showError(err.message);
                 showLoading(false);
-                // Usamos getElementById aquí porque es dentro de una función
-                // que se llama *después* de que la página ha cargado
                 document.getElementById('login-screen').style.display = 'flex';
                 localStorage.removeItem('sofia_store_code');
                 localStorage.removeItem('sofia_client_phone');
@@ -337,7 +320,7 @@
         }
         
         // =================================================
-        // 5. REGISTRO DE NUEVO CLIENTE (SOLO DEFINICIÓN DE FUNCIÓN)
+        // 5. REGISTRO DE NUEVO CLIENTE (SIN CAMBIOS)
         // =================================================
         function showRegistrationStep() {
             document.getElementById('step-1').classList.add('hidden');
@@ -347,7 +330,7 @@
         }
 
         // =================================================
-        // 6. ENTRAR AL CATÁLOGO Y CARGAR DATOS (SOLO DEFINICIONES)
+        // 6. ENTRAR AL CATÁLOGO Y CARGAR DATOS (SIN CAMBIOS)
         // =================================================
         function enterCatalog() {
             localStorage.setItem('sofia_store_code', currentStore.codigo_tienda);
@@ -434,8 +417,10 @@
         }
 
         // =================================================
-        // 7. LÓGICA: GESTIÓN DEL CARRITO (SOLO DEFINICIONES)
+        // 7. LÓGICA: GESTIÓN DEL CARRITO
         // =================================================
+        
+        // ======== INICIO DE LA CORRECCIÓN JAVASCRIPT (Toastify) ========
         function addToCart(product) {
             const existingItem = cart.find(item => item.id === product.id);
 
@@ -450,11 +435,15 @@
                 duration: 2000,
                 gravity: "bottom",
                 position: "right",
-                backgroundColor: "#5d4037",
+                // CORRECCIÓN: 'backgroundColor' está obsoleto
+                style: {
+                  background: "#5d4037",
+                }
             }).showToast();
 
             updateCartUI();
         }
+        // ======== FIN DE LA CORRECCIÓN JAVASCRIPT (Toastify) ========
 
         function updateCartQuantity(productId, newQuantity) {
             const item = cart.find(item => item.id === productId);
@@ -495,43 +484,50 @@
             return total;
         }
 
+        // ======== INICIO DE LA CORRECCIÓN JAVASCRIPT (renderCartModal) ========
         function renderCartModal() {
+            // Obtenemos las referencias (ahora 'cartEmptyMsg' siempre existirá)
             const cartItemsContainer = document.getElementById('cart-items-container');
             const cartEmptyMsg = document.getElementById('cart-empty-msg');
             
-            if (cart.length === 0) {
-                cartItemsContainer.innerHTML = '';
-                cartEmptyMsg.classList.remove('hidden');
-                return;
-            }
-
-            cartEmptyMsg.classList.add('hidden');
+            // 1. Siempre limpiamos el contenedor de *items*
             cartItemsContainer.innerHTML = '';
 
-            cart.forEach(item => {
-                const itemEl = document.createElement('div');
-                itemEl.className = 'flex items-center gap-4 border-b pb-4';
-                itemEl.innerHTML = `
-                    <img src="${item.imagen_url || `https://placehold.co/100x100/eee/ccc?text=${encodeURIComponent(item.nombre)}`}" 
-                         class="w-16 h-16 rounded-md object-cover bg-gray-100">
-                    <div class="flex-grow">
-                        <h4 class="font-bold text-sm text-[#5d4037]">${item.nombre}</h4>
-                        <p class="text-sm text-gray-500">$${parseFloat(item.precio).toFixed(2)} c/u</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="updateCartQuantity('${item.id}', ${item.quantity - 1})" 
-                                class="bg-gray-200 w-6 h-6 rounded-full font-bold">-</button>
-                        <span class="font-bold w-5 text-center">${item.quantity}</span>
-                        <button onclick="updateCartQuantity('${item.id}', ${item.quantity + 1})" 
-                                class="bg-[#f8b5d1] text-[#5d4037] w-6 h-6 rounded-full font-bold">+</button>
-                    </div>
-                `;
-                cartItemsContainer.appendChild(itemEl);
-            });
+            // 2. Comprobamos si el carrito está vacío
+            if (cart.length === 0) {
+                // Mostramos el mensaje de vacío
+                cartEmptyMsg.classList.remove('hidden');
+            } else {
+                // Ocultamos el mensaje de vacío
+                cartEmptyMsg.classList.add('hidden');
+                
+                // 3. (Antes 'else') Renderizamos los items
+                cart.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'flex items-center gap-4 border-b pb-4';
+                    itemEl.innerHTML = `
+                        <img src="${item.imagen_url || `https://placehold.co/100x100/eee/ccc?text=${encodeURIComponent(item.nombre)}`}" 
+                             class="w-16 h-16 rounded-md object-cover bg-gray-100">
+                        <div class="flex-grow">
+                            <h4 class="font-bold text-sm text-[#5d4037]">${item.nombre}</h4>
+                            <p class="text-sm text-gray-500">$${parseFloat(item.precio).toFixed(2)} c/u</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="updateCartQuantity('${item.id}', ${item.quantity - 1})" 
+                                    class="bg-gray-200 w-6 h-6 rounded-full font-bold">-</button>
+                            <span class="font-bold w-5 text-center">${item.quantity}</span>
+                            <button onclick="updateCartQuantity('${item.id}', ${item.quantity + 1})" 
+                                    class="bg-[#f8b5d1] text-[#5d4037] w-6 h-6 rounded-full font-bold">+</button>
+                        </div>
+                    `;
+                    cartItemsContainer.appendChild(itemEl);
+                });
+            }
         }
+        // ======== FIN DE LA CORRECCIÓN JAVASCRIPT (renderCartModal) ========
         
         // =================================================
-        // 8. LÓGICA: CHECKOUT Y PAGO (SOLO DEFINICIONES)
+        // 8. LÓGICA: CHECKOUT Y PAGO (SIN CAMBIOS)
         // =================================================
         async function loadPaymentMethods() {
             const paymentLoadingMsg = document.getElementById('payment-loading-msg');
@@ -593,7 +589,7 @@
 
         function showPaymentModal() {
             document.getElementById('payment-order-summary').innerHTML = cart.map(item => `
-                <div>${item.quantity} x ${item.nombre} = Fuerte>$${(item.quantity * item.precio).toFixed(2)}</strong></div>
+                <div>${item.quantity} x ${item.nombre} = <strong>$${(item.quantity * item.precio).toFixed(2)}</strong></div>
             `).join('');
             
             const whatsappLink = generateWhatsAppLink();
@@ -620,8 +616,6 @@
             message += `¡Quedo atento/a para coordinar el pago!`;
 
             const encodedMessage = encodeURIComponent(message);
-            // ¡¡¡IMPORTANTE!!! Recuerda la corrección del análisis anterior.
-            // Tu tabla 'usuarios' (currentStore) NECESITA un campo 'telefono'.
             const storePhone = currentStore.telefono || 'TU_NUMERO_DE_WHATSAPP_AQUI';
             
             if (!currentStore.telefono) {
@@ -632,7 +626,7 @@
         }
 
         // =================================================
-        // 9. UTILIDADES (DEFINICIONES DE FUNCIONES)
+        // 9. UTILIDADES (SIN CAMBIOS)
         // =================================================
         window.logout = function() {
             localStorage.removeItem('sofia_store_code');
