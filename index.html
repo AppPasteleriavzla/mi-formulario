@@ -3,76 +3,373 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulario de Contacto</title>
-    <!-- Tailwind CSS (para estilos, opcional) -->
+    <title>Acceso al Catálogo</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Toastify para alertas bonitas -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    
+    <style>
+        :root { --primary: #f8b5d1; --dark: #5d4037; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #fff9f5; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: inline-block;}
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <form id="miFormulario" class="bg-white p-8 rounded-lg shadow-md w-96">
-        <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Nombre:</label>
-            <input type="text" name="nombre" required 
-                   class="w-full px-3 py-2 border rounded-md">
+<body class="min-h-screen flex flex-col">
+
+    <!-- PANTALLA DE ACCESO (LOGIN/REGISTRO) -->
+    <div id="login-screen" class="fixed inset-0 z-50 bg-[#fff9f5] flex items-center justify-center p-4 transition-opacity duration-500">
+        <div class="bg-white p-8 rounded-2xl shadow-xl max-w-md w-full text-center border-t-4 border-[#f8b5d1]">
+            <div class="text-5xl mb-4">🔐</div>
+            <h1 class="text-2xl font-bold text-[#5d4037] mb-2">Bienvenido</h1>
+            <p class="text-gray-500 mb-6 text-sm">Ingresa el código de la tienda y tu teléfono para ver el catálogo.</p>
+            
+            <form id="access-form" class="space-y-4 text-left">
+                
+                <!-- Paso 1: Código Tienda y Teléfono -->
+                <div id="step-1">
+                    <div class="mb-4">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Código de la Tienda (5 letras)</label>
+                        <input type="text" id="store-code" maxlength="5" class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#f8b5d1] text-center uppercase tracking-widest font-bold text-xl" placeholder="ABCDE" required>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tu Número de Teléfono</label>
+                        <input type="tel" id="client-phone" class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#f8b5d1] text-lg" placeholder="Ej: +58 412..." required>
+                    </div>
+                    
+                    <button type="submit" class="w-full bg-[#5d4037] text-white py-3 rounded-lg font-bold hover:bg-opacity-90 transition flex justify-center items-center gap-2">
+                        <span>Ingresar</span> <span id="btn-loader-1" class="loader hidden"></span>
+                    </button>
+                </div>
+
+                <!-- Paso 2: Registro de Nombre (Solo si es nuevo) -->
+                <div id="step-2" class="hidden">
+                    <div class="bg-blue-50 text-blue-800 p-3 rounded-lg text-sm mb-4">
+                        👋 ¡Hola! Parece que es tu primera vez aquí. ¿Cómo te llamas?
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tu Nombre Completo</label>
+                        <input type="text" id="client-name" class="w-full p-3 border border-gray-200 rounded-lg focus:outline-none focus:border-[#f8b5d1]" placeholder="Nombre Apellido">
+                    </div>
+                    <button type="button" id="btn-register" class="w-full bg-[#f8b5d1] text-[#5d4037] py-3 rounded-lg font-bold hover:bg-opacity-90 transition flex justify-center items-center gap-2">
+                        <span>Completar Registro</span> <span id="btn-loader-2" class="loader hidden"></span>
+                    </button>
+                </div>
+
+                <p id="error-msg" class="text-red-500 text-sm mt-3 text-center hidden"></p>
+            </form>
         </div>
-        
-        <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Email:</label>
-            <input type="email" name="email" required
-                   class="w-full px-3 py-2 border rounded-md">
-        </div>
-        
-        <div class="mb-4">
-            <label class="block text-gray-700 mb-2">Teléfono:</label>
-            <input type="tel" name="telefono"
-                   class="w-full px-3 py-2 border rounded-md">
+    </div>
+
+    <!-- CONTENIDO DEL CATÁLOGO -->
+    <div id="catalog-app" class="hidden flex-col min-h-screen">
+        <!-- Navbar -->
+        <header class="sticky top-0 z-40 bg-white/90 backdrop-blur shadow-sm border-b border-[#f8b5d1]">
+            <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">🍰</span>
+                    <div>
+                        <h1 id="store-name-display" class="font-bold text-[#5d4037] leading-none">Cargando...</h1>
+                        <p class="text-xs text-gray-400">Catálogo Digital</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3">
+                    <div class="text-right hidden sm:block">
+                        <p id="client-name-display" class="text-sm font-bold text-[#5d4037]">Cliente</p>
+                        <p id="client-phone-display" class="text-xs text-gray-400">...</p>
+                    </div>
+                    <button onclick="logout()" class="text-xs text-red-400 border border-red-200 px-2 py-1 rounded hover:bg-red-50">Salir</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Mini -->
+        <div class="bg-[#5d4037] text-white py-8 px-4 text-center bg-cover bg-center relative" style="background-image: url('https://images.unsplash.com/photo-1555507036-ab794f27d2e9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
+            <div class="absolute inset-0 bg-black/60"></div>
+            <div class="relative z-10">
+                <h2 class="text-2xl font-bold mb-2">Vitrina de Productos</h2>
+                <p class="text-sm text-gray-200">Selecciona lo que más te guste</p>
+            </div>
         </div>
 
-        <button type="submit" 
-                class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
-            Enviar Datos
-        </button>
-        
-        <div id="mensaje" class="mt-4 text-center"></div>
-    </form>
+        <!-- Grid Productos -->
+        <main class="flex-grow container mx-auto px-4 py-8">
+            <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Productos aquí -->
+            </div>
+            <div id="empty-msg" class="hidden text-center py-10 text-gray-500">
+                No hay productos disponibles en esta tienda.
+            </div>
+        </main>
+
+        <footer class="bg-gray-100 py-6 text-center text-xs text-gray-500">
+            <p>Powered by Sofía Manager</p>
+        </footer>
+    </div>
 
     <script>
-   document.getElementById('miFormulario').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const mensaje = document.getElementById('mensaje');
-    mensaje.textContent = "Enviando...";
+        // =================================================
+        // 1. CONFIGURACIÓN DE SUPABASE
+        // =================================================
+        const SUPABASE_URL = 'https://cirrapytmbnjlhxunkaq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNpcnJhcHl0bWJuamxoeHVua2FxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI5NzAyMDAsImV4cCI6MjA3ODU0NjIwMH0.OtJiLGj1EvhPICFaA9ruL02Z9kSQ2jT0t3Smqph81C4';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    try {
-        const formData = new FormData(e.target);
-        const url = 'https://script.google.com/macros/s/AKfycbydlgRv5k5eeKHsqc4ZAD443PxD_UqRkXyMA2dkCj2FcsJTjkAaX7pf5-xMS_lmdorp/exec';
+        // Variables de estado
+        let currentStore = null;
+        let currentClient = null;
 
-        // Configuración especial para CORS
-        const response = await fetch(url, {
-            method: 'POST',
-            redirect: 'follow',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: new URLSearchParams(formData)
+        // Elementos DOM
+        const loginScreen = document.getElementById('login-screen');
+        const catalogApp = document.getElementById('catalog-app');
+        const accessForm = document.getElementById('access-form');
+        const step1 = document.getElementById('step-1');
+        const step2 = document.getElementById('step-2');
+        const errorMsg = document.getElementById('error-msg');
+        const productsGrid = document.getElementById('products-grid');
+
+        // =================================================
+        // 2. INICIALIZACIÓN
+        // =================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedStoreCode = localStorage.getItem('sofia_store_code');
+            const savedPhone = localStorage.getItem('sofia_client_phone');
+            
+            if (savedStoreCode && savedPhone) {
+                document.getElementById('store-code').value = savedStoreCode;
+                document.getElementById('client-phone').value = savedPhone;
+                handleAccess(new Event('submit'));
+            }
         });
 
-        // Manejar redirecciones de Google Apps Script
-        const finalResponse = await response.text();
-        const result = JSON.parse(finalResponse);
+        // =================================================
+        // 3. LÓGICA DE LOGIN Y ACCESO
+        // =================================================
+        accessForm.addEventListener('submit', handleAccess);
 
-        if(result.success) {
-            mensaje.textContent = "✅ Datos guardados correctamente";
-            mensaje.style.color = 'green';
-            e.target.reset();
-        } else {
-            throw new Error(result.error || "Error desconocido");
+        async function handleAccess(e) {
+            if (e) e.preventDefault();
+            
+            // Limpieza agresiva de datos de entrada
+            const code = document.getElementById('store-code').value.toUpperCase().replace(/\s+/g, '');
+            const phone = document.getElementById('client-phone').value.trim();
+            
+            if (!code || !phone) return showError('Por favor completa todos los campos');
+
+            showLoading(true);
+            hideError();
+
+            try {
+                console.log("Buscando tienda con código:", code);
+
+                // A. BUSCAR LA TIENDA (EMPRENDEDOR)
+                const { data: store, error: storeError } = await supabase
+                    .from('usuarios')
+                    .select('*')
+                    .eq('codigo_tienda', code)
+                    .maybeSingle(); // maybeSingle no lanza error si no encuentra, devuelve null
+
+                if (storeError) {
+                    console.error("Error DB Tienda:", storeError);
+                    throw new Error('Error de conexión al buscar la tienda. Intenta recargar.');
+                }
+
+                if (!store) {
+                    console.warn("Tienda no encontrada para:", code);
+                    throw new Error(`No encontramos una tienda con el código "${code}". Verifica que esté bien escrito.`);
+                }
+                
+                currentStore = store;
+                console.log("Tienda encontrada:", store.nombre);
+
+                // B. BUSCAR EL CLIENTE
+                const { data: client, error: clientError } = await supabase
+                    .from('clientes')
+                    .select('*')
+                    .eq('telefono', phone)
+                    .maybeSingle();
+
+                if (client) {
+                    console.log("Cliente existente:", client.nombre);
+                    currentClient = client;
+                    enterCatalog();
+                } else {
+                    console.log("Cliente nuevo, solicitando registro...");
+                    showRegistrationStep();
+                }
+
+            } catch (err) {
+                console.error(err);
+                showError(err.message);
+                showLoading(false);
+            }
         }
 
-    } catch (error) {
-        mensaje.textContent = `❌ Error: ${error.message}`;
-        mensaje.style.color = 'red';
-        console.error('Detalles del error:', error);
-    }
-});
+        // =================================================
+        // 4. REGISTRO DE NUEVO CLIENTE
+        // =================================================
+        function showRegistrationStep() {
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
+            showLoading(false);
+        }
+
+        document.getElementById('btn-register').addEventListener('click', async () => {
+            const name = document.getElementById('client-name').value.trim();
+            const phone = document.getElementById('client-phone').value.trim();
+            
+            if (!name) return showError('Por favor ingresa tu nombre');
+            
+            document.getElementById('btn-loader-2').classList.remove('hidden');
+
+            try {
+                const { data, error } = await supabase
+                    .from('clientes')
+                    .insert({
+                        telefono: phone,
+                        nombre: name,
+                        ultima_tienda_visitada: currentStore.codigo_tienda
+                    })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+
+                currentClient = data;
+                Toastify({
+                    text: "¡Registro exitoso! Bienvenido.",
+                    backgroundColor: "#a5d6a7",
+                    textColor: "#1b5e20"
+                }).showToast();
+                
+                enterCatalog();
+
+            } catch (err) {
+                console.error(err);
+                showError('Error al registrar. Puede que el teléfono ya esté en uso.');
+                document.getElementById('btn-loader-2').classList.add('hidden');
+            }
+        });
+
+        // =================================================
+        // 5. ENTRAR AL CATÁLOGO Y CARGAR DATOS
+        // =================================================
+        function enterCatalog() {
+            localStorage.setItem('sofia_store_code', currentStore.codigo_tienda);
+            localStorage.setItem('sofia_client_phone', currentClient.telefono);
+
+            document.getElementById('store-name-display').textContent = currentStore.nombre;
+            document.getElementById('client-name-display').textContent = currentClient.nombre;
+            document.getElementById('client-phone-display').textContent = currentClient.telefono;
+
+            // Transición de pantallas
+            loginScreen.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => loginScreen.style.display = 'none', 500);
+            catalogApp.classList.remove('hidden');
+            catalogApp.classList.add('flex');
+
+            loadProducts();
+        }
+
+        async function loadProducts() {
+            productsGrid.innerHTML = '<div class="col-span-full text-center"><span class="loader"></span> Cargando productos...</div>';
+
+            const { data: products, error } = await supabase
+                .from('productos')
+                .select('*')
+                .eq('creado_por', currentStore.id)
+                .order('created_at', { ascending: false });
+
+            productsGrid.innerHTML = '';
+
+            if (error) {
+                console.error("Error cargando productos:", error);
+                productsGrid.innerHTML = '<div class="col-span-full text-center text-red-400">Error al cargar productos.</div>';
+                return;
+            }
+
+            if (!products || products.length === 0) {
+                document.getElementById('empty-msg').classList.remove('hidden');
+                return;
+            }
+
+            products.forEach(product => {
+                renderProductCard(product);
+            });
+        }
+
+        function renderProductCard(product) {
+            const encodedName = encodeURIComponent(product.nombre);
+            const placeholderUrl = `https://placehold.co/600x400/f8b5d1/5d4037?text=${encodedName}`;
+            const image = (product.imagen_url && product.imagen_url.length > 5) ? product.imagen_url : placeholderUrl;
+            
+            const card = document.createElement('div');
+            card.className = 'bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 flex flex-col hover:shadow-lg transition-shadow duration-300';
+            card.innerHTML = `
+                <div class="h-48 overflow-hidden relative group">
+                    <img src="${image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" onerror="this.src='${placeholderUrl}'">
+                    ${product.stock > 0 
+                        ? `<span class="absolute top-2 right-2 bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-bold shadow-sm">Stock: ${product.stock}</span>`
+                        : `<span class="absolute top-2 right-2 bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full font-bold shadow-sm">Agotado</span>`
+                    }
+                </div>
+                <div class="p-4 flex-grow flex flex-col">
+                    <h3 class="font-bold text-lg text-[#5d4037] leading-tight mb-1">${product.nombre}</h3>
+                    <p class="text-xs text-[#f8b5d1] font-bold uppercase mb-2">${product.categoria || 'Pastelería'}</p>
+                    <p class="text-sm text-gray-500 mb-4 flex-grow line-clamp-3">${product.descripcion || 'Delicioso producto artesanal.'}</p>
+                    
+                    <div class="flex justify-between items-center pt-3 border-t border-gray-50 mt-auto">
+                        <span class="font-bold text-xl text-[#5d4037]">$${parseFloat(product.precio).toFixed(2)}</span>
+                        <button class="bg-[#f8b5d1] text-[#5d4037] px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#ffcc80] transition shadow-sm flex items-center gap-1 ${product.stock <= 0 ? 'opacity-50 cursor-not-allowed' : ''}"
+                            ${product.stock <= 0 ? 'disabled' : ''}
+                            onclick="addToCart('${product.id}', '${product.nombre}', ${product.precio})">
+                            ${product.stock <= 0 ? 'Agotado' : 'Agregar +'}
+                        </button>
+                    </div>
+                </div>
+            `;
+            productsGrid.appendChild(card);
+        }
+
+        // =================================================
+        // 6. UTILIDADES
+        // =================================================
+        function addToCart(id, name, price) {
+            Toastify({
+                text: `Agregado: ${name}`,
+                duration: 3000,
+                gravity: "bottom",
+                position: "right",
+                backgroundColor: "#5d4037",
+            }).showToast();
+        }
+
+        window.logout = function() {
+            localStorage.removeItem('sofia_store_code');
+            localStorage.removeItem('sofia_client_phone');
+            location.reload();
+        }
+
+        function showError(msg) {
+            errorMsg.textContent = msg;
+            errorMsg.classList.remove('hidden');
+            // Vibrar si es móvil
+            if (navigator.vibrate) navigator.vibrate(200);
+        }
+        function hideError() {
+            errorMsg.classList.add('hidden');
+        }
+        function showLoading(show) {
+            const loader = document.getElementById('btn-loader-1');
+            if (show) loader.classList.remove('hidden');
+            else loader.classList.add('hidden');
+        }
     </script>
 </body>
 </html>
+
+
