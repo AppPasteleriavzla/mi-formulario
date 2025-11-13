@@ -282,7 +282,7 @@
                 .from('productos')
                 .select('*')
                 .eq('creado_por', currentStore.id)
-                .order('created_at', { ascending: false });
+               .order('fecha_creacion', { ascending: false });
 
             productsGrid.innerHTML = '';
 
@@ -371,5 +371,6 @@
     </script>
 </body>
 </html>
+
 
 
